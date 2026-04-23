@@ -52,13 +52,13 @@ export default function EditProductPage() {
                     const data = docSnap.data() as Product;
                     console.log('✅ [CLIENT] Product loaded:', data.name);
                     setFormData({
-                        name: data.name,
-                        description: data.description,
-                        category: data.category,
-                        basePrice: data.basePrice.toString(),
+                        name: data.name || '',
+                        description: data.description || '',
+                        category: data.category || '',
+                        basePrice: data.basePrice ? data.basePrice.toString() : '0',
                         sizes: data.availableSizes?.join(', ') || '',
                         colors: data.availableColors?.join(', ') || '',
-                        isActive: data.isActive,
+                        isActive: data.isActive || false,
                     });
                     setImageUrls(data.images || []);
                 } else {
@@ -82,11 +82,13 @@ export default function EditProductPage() {
         form.append('file', file);
 
         const result = await uploadImageAction(form);
-        if (result?.url) {
-            toast.success("Image uploaded successfully!"); // <-- New syntax
-            setImageUrls((prev) => [...prev, result?.url]);
+        if ('url' in result) {
+            // TypeScript now knows result is { url: string }
+            toast.success("Image uploaded successfully!");
+            setImageUrls((prev) => [...prev, result.url]);
         } else {
-            toast.error(result?.error || "Upload failed"); // <-- New syntax
+            // TypeScript now knows result is { error: string }
+            toast.error(result.error || "Upload failed");
         }
         setUploadingImage(false);
         e.target.value = '';

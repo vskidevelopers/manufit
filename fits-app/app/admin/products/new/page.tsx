@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Upload, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 
 // Install textarea if you haven't: npx shadcn@latest add textarea
@@ -43,10 +44,13 @@ export default function NewProductPage() {
 
         const result = await uploadImageAction(form);
         console.log('☁️ [CLIENT] Image upload result:', result);
-        if (result?.url) {
+        if ('url' in result) {
+            // TypeScript now knows result is { url: string }
+            toast.success("Image uploaded successfully!");
             setImageUrls((prev) => [...prev, result.url]);
         } else {
-            setError(result.error || 'Upload failed');
+            // TypeScript now knows result is { error: string }
+            toast.error(result.error || "Upload failed");
         }
         setUploadingImage(false);
         e.target.value = ''; // Reset input

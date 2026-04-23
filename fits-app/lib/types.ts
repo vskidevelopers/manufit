@@ -2,15 +2,15 @@
 
 export interface Product {
   id?: string; // Firestore ID
-  name: string;
-  description: string;
-  category: "t-shirt" | "hoodie" | "kids" | "decor" | "merchandise" | "other";
-  basePrice: number;
-  images: string[]; // Cloudinary URLs
-  availableSizes: string[]; // e.g., ['S', 'M', 'L', 'XL']
-  availableColors: string[]; // e.g., ['Red', 'Blue', 'Black']
-  isActive: boolean;
-  createdAt: any; // Firestore Timestamp
+  name?: string;
+  description?: string;
+  category?: "t-shirt" | "hoodie" | "kids" | "decor" | "merchandise" | "other";
+  basePrice?: number;
+  images?: string[]; // Cloudinary URLs
+  availableSizes?: string[]; // e.g., ['S', 'M', 'L', 'XL']
+  availableColors?: string[]; // e.g., ['Red', 'Blue', 'Black']
+  isActive?: boolean;
+  createdAt?: any; // Firestore Timestamp
 }
 
 export interface OrderItem {

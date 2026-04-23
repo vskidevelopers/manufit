@@ -78,8 +78,12 @@ export default function ProductsPage() {
         fetchProducts();
     }, []);
 
-    const formatCurrency = (amount: number) => {
-        const currency: string = "Ksh"
+
+    const formatCurrency = (amount: number | undefined) => {
+        const currency = "Ksh";
+        if (amount == null) {
+            return `${currency} 0.00`;
+        }
         return `${currency} ${amount.toLocaleString()}`;
     };
 
@@ -130,15 +134,17 @@ export default function ProductsPage() {
                                         {currentProducts.map((product) => (
                                             <TableRow key={product.id} className="hover:bg-slate-50">
                                                 <TableCell>
-                                                    {product.images[0] ? (
-                                                        <img src={product.images[0]} alt={product.name} className="h-12 w-12 object-cover rounded-md border" />
+                                                    {product.images?.[0] ? (
+                                                        <img src={product.images[0]} alt={product.name} className="h-12 w-12 object-cover rounded" />
                                                     ) : (
-                                                        <div className="h-12 w-12 bg-gray-200 rounded-md flex items-center justify-center"><Package size={16} /></div>
+                                                        <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                                            <Package className="h-6 w-6 text-gray-400" />
+                                                        </div>
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="font-medium">{product.name}</TableCell>
                                                 <TableCell className="capitalize">{product.category}</TableCell>
-                                                <TableCell>{formatCurrency(product.basePrice)}</TableCell>
+                                                <TableCell>{formatCurrency(product?.basePrice)}</TableCell>
                                                 <TableCell><span className="text-xs text-gray-500">{product.availableSizes?.join(', ') || 'N/A'}</span></TableCell>
                                                 <TableCell>
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
