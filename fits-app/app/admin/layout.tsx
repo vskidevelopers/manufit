@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, loading, logout } = useAuth();
     const router = useRouter();
@@ -29,6 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     if (!user) {
+        console.log('🚫 [CLIENT] No authenticated user found, redirecting to login...');
         router.push('/admin/login');
         return null;
     }
