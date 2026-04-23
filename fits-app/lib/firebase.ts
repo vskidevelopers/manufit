@@ -44,7 +44,7 @@ export const loginUser = async (email: string, password: string) => {
     console.log("✅ [DB-AUTH] Login success:", result.user.uid);
     return result;
   } catch (error: any) {
-    console.error("❌ [DB-AUTH] Login failed:", error.code);
+    console.error("❌ [DB-AUTH] Login failed:", error);
     throw error;
   }
 };
@@ -82,6 +82,7 @@ export const getCollectionInDb = async (collectionName: string) => {
     console.log(
       `✅ [DB-CORE] Fetched ${data.length} items from ${collectionName}`,
     );
+    console.log("data from firebase firestore >>> ", data);
     return data;
   } catch (error) {
     console.error(`❌ [DB-CORE] Fetch failed: ${collectionName}`, error);

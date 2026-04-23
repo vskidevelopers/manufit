@@ -1,14 +1,16 @@
 'use client';
 
+import { useEffect } from 'react'; // ✅ Add this import
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { loginUser } from '@/lib/firebase'; // Import centralized function
+import { loginUser } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 import { Shirt } from 'lucide-react';
 
 export default function LoginPage() {
@@ -17,11 +19,32 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const user = {
+        email: 'exampleUser@gmail.com',
 
+    }
+
+    // ✅ REDIRECT LOGIC MOVED TO USEEFFECT
+    useEffect(() => {
+        if (user) {
+            console.log('🔍 [CLIENT] Auth state detected active user:', user.email);
+            console.log('🔄 [CLIENT] Redirecting to /admin...');
+            router.push('/admin');
+        } else {
+            console.log('🔍 [CLIENT] Auth state detected no active user, staying on login page.');
+        }
+    }, []); // Runs only when 'user' changes
+
+    // ✅ Early return ONLY after effect handles redirect
     if (user) {
-        router.push('/admin');
-        return null;
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p className="text-gray-500 animate-pulse">Redirecting to dashboard...</p>
+            </div>
+        );
+    } else {
+        console.log('🔍 [CLIENT] No active user detected, showing login form.');
     }
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -33,12 +56,13 @@ export default function LoginPage() {
         try {
             console.log('🚀 [CLIENT] Calling loginUser function...');
             await loginUser(email, password);
-            // The internal log in loginUser will show the success/failure
-            console.log('🎉 [CLIENT] Login hook completed. Redirecting...');
-            router.push('/admin');
+            // Note: The redirect will happen via the useEffect above when 'user' updates
+            console.log('🎉 [CLIENT] Login hook completed.');
+            toast.success("Welcome back!");
         } catch (err: any) {
             console.error('💥 [CLIENT] Login caught an error:', err);
             setError('Invalid email or password. Check console for details.');
+            toast.error("Login failed");
         } finally {
             setLoading(false);
         }
@@ -52,9 +76,7 @@ export default function LoginPage() {
                         <Shirt size={24} />
                     </div>
                     <CardTitle className="text-2xl font-bold tracking-tight">ManuFit Admin</CardTitle>
-                    <CardDescription>
-                        Enter your credentials to access the dashboard
-                    </CardDescription>
+                    <CardDescription>Enter your credentials to access the dashboard</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
                     <CardContent className="space-y-4">
@@ -90,9 +112,9 @@ export default function LoginPage() {
                             />
                         </div>
                     </CardContent>
-                    <br />
+
                     <CardFooter>
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button type="button" className="w-full" disabled={loading}>
                             {loading ? "Signing in..." : "Sign In"}
                         </Button>
                     </CardFooter>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCollection } from '@/lib/firebase';
+import { getCollectionInDb } from '@/lib/firebase';
 import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -65,8 +65,9 @@ export default function ProductsPage() {
         console.log('📄 [CLIENT] ProductsPage mounted. Fetching data...');
         const fetchProducts = async () => {
             try {
-                const data = await getCollection('products');
-                console.log(`✅ [CLIENT] Fetched ${data.length} total products.`);
+                const data = await getCollectionInDb('products');
+                console.log(`✅ [CLIENT] Fetched ${data?.length} total products.`);
+                console.log(`✅ [CLIENT] Products Fetched ${data} `);
                 setProducts(data);
             } catch (error) {
                 console.error('❌ [CLIENT] Failed to fetch products:', error);
@@ -77,8 +78,8 @@ export default function ProductsPage() {
         fetchProducts();
     }, []);
 
-    const formatCurrency = (amount: number, currency: string) => {
-        currency = "Ksh"
+    const formatCurrency = (amount: number) => {
+        const currency: string = "Ksh"
         return `${currency} ${amount.toLocaleString()}`;
     };
 
@@ -137,7 +138,7 @@ export default function ProductsPage() {
                                                 </TableCell>
                                                 <TableCell className="font-medium">{product.name}</TableCell>
                                                 <TableCell className="capitalize">{product.category}</TableCell>
-                                                <TableCell>{formatCurrency(product.basePrice, product.currency)}</TableCell>
+                                                <TableCell>{formatCurrency(product.basePrice)}</TableCell>
                                                 <TableCell><span className="text-xs text-gray-500">{product.availableSizes?.join(', ') || 'N/A'}</span></TableCell>
                                                 <TableCell>
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

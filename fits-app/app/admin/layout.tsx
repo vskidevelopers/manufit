@@ -3,9 +3,10 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { LogOut, LayoutDashboard, ShoppingBag, Users, Package } from 'lucide-react';
+import { LogOut, LayoutDashboard, ShoppingBag, Users, Package, Shirt } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, loading, logout } = useAuth();
@@ -15,8 +16,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     useEffect(() => {
         if (!loading && !user) {
             router.push('/admin/login');
+        } else {
+            <div className="flex h-screen items-center justify-center">Loading Admin LOGIN FORM...</div>;
+            console.log('🔍 [CLIENT] Auth state checked: user is', user ? 'logged in' : 'not logged in');
+
+
         }
-    }, [user, loading, router]);
+    }, []);
 
     if (loading) {
         return <div className="flex h-screen items-center justify-center">Loading Admin...</div>;

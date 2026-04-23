@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ManuFit Admin",
+  title: "ManuFitz",
   description: "Admin Dashboard for ManuFit Apparel",
 };
 
