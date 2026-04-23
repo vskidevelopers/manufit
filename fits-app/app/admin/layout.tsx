@@ -29,7 +29,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     if (!user) {
-        return null; // Redirecting...
+        router.push('/admin/login');
+        return null;
     }
 
     // Sidebar Links
