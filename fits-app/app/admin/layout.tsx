@@ -14,14 +14,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const router = useRouter();
     const pathname = usePathname();
 
+
+
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/admin/login');
+            console.log('🔍 [CLIENT] No active user detected, redirecting to /login');
+            router.push('/login');
+        } else if (!user) {
+            console.log('🔍 [CLIENT] Auth state checked: no active user, showing loading state before redirect.');
+            router.push('/login');
         } else {
             <div className="flex h-screen items-center justify-center">Loading Admin LOGIN FORM...</div>;
             console.log('🔍 [CLIENT] Auth state checked: user is', user ? 'logged in' : 'not logged in');
-
-
         }
     }, []);
 
@@ -29,11 +33,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return <div className="flex h-screen items-center justify-center">Loading Admin...</div>;
     }
 
-    if (!user) {
-        console.log('🚫 [CLIENT] No authenticated user found, redirecting to login...');
-        router.push('/admin/login');
-        return null;
-    }
 
     // Sidebar Links
     const navItems = [
@@ -49,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <aside className="w-64 bg-white shadow-md flex flex-col">
                 <div className="p-6 border-b">
                     <h1 className="text-xl font-bold text-blue-600">ManuFit Admin</h1>
-                    <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">

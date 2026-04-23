@@ -19,11 +19,7 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    // const { user } = useAuth();
-    const user = {
-        email: 'exampleUser@gmail.com',
-
-    }
+    const { user } = useAuth();
 
     // ✅ REDIRECT LOGIC MOVED TO USEEFFECT
     useEffect(() => {
