@@ -78,6 +78,7 @@ export default function ProductsPage() {
         fetchProducts();
     }, []);
 
+    console.log('✅ [CLIENT] Products state updated with fetched data. >>> ', products);
 
     const formatCurrency = (amount: number | undefined) => {
         const currency = "Ksh";

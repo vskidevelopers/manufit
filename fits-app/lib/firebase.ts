@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
@@ -16,6 +17,10 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  getDoc,
+  query,
+  where,
+  limit,
 } from "firebase/firestore";
 
 // --- CONFIGURATION ---
@@ -90,48 +95,98 @@ export const getCollectionInDb = async (collectionName: string) => {
   }
 };
 
-// ==========================================
-// 🛍️ DATABASE WORKERS (PRODUCT SPECIFIC)
-// ==========================================
-
-export const createProductInDb = async (productData: any) => {
-  console.log("💾 [DB-PROD] Creating product...", productData.name);
+// --- GENERIC CRUD ---
+export const createDoc = async (col: string, data: any) => {
+  console.log(`💾 [DB] Create in ${col}:`, data);
   try {
-    const docRef = await addDoc(collection(db, "products"), {
-      ...productData,
+    const ref = await addDoc(collection(db, col), {
+      ...data,
       createdAt: serverTimestamp(),
     });
-    console.log("✅ [DB-PROD] Created ID:", docRef.id);
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("❌ [DB-PROD] Create failed", error);
-    return { success: false, error };
+    console.log(`✅ [DB] Created ${col}/${ref.id}`);
+    return { success: true, id: ref.id };
+  } catch (e) {
+    console.error(`❌ [DB] Create failed ${col}:`, e);
+    return { success: false, error: e };
   }
 };
 
-export const updateProductInDb = async (id: string, data: any) => {
-  console.log("✏️ [DB-PROD] Updating ID:", id);
+export const getCollection = async (col: string) => {
+  console.log(`📥 [DB] Fetch ${col}`);
   try {
-    await updateDoc(doc(db, "products", id), {
+    const snap = await getDocs(collection(db, col));
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    console.log(`✅ [DB] Fetched ${data.length} from ${col}`);
+    return data;
+  } catch (e) {
+    console.error(`❌ [DB] Fetch failed ${col}:`, e);
+    throw e;
+  }
+};
+
+export const getDocById = async (col: string, id: string) => {
+  console.log(`🔍 [DB] Get ${col}/${id}`);
+  try {
+    const snap = await getDoc(doc(db, col, id));
+    if (!snap.exists()) {
+      console.warn(`⚠️ [DB] Not found: ${col}/${id}`);
+      return null;
+    }
+    const data = { id: snap.id, ...snap.data() };
+    console.log(`✅ [DB] Retrieved:`, data);
+    return data;
+  } catch (e) {
+    console.error(`❌ [DB] Get failed ${col}/${id}:`, e);
+    throw e;
+  }
+};
+
+export const getDocsByField = async (
+  col: string,
+  field: string,
+  value: any,
+  limitCount?: number,
+) => {
+  console.log(`🔍 [DB] Query ${col} where ${field}==${value}`);
+  try {
+    const q = query(
+      collection(db, col),
+      where(field, "==", value),
+      ...(limitCount ? [limit(limitCount)] : []),
+    );
+    const snap = await getDocs(q);
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    console.log(`✅ [DB] Found ${data.length} matches`);
+    return data;
+  } catch (e) {
+    console.error(`❌ [DB] Query failed ${col}.${field}:`, e);
+    throw e;
+  }
+};
+
+export const updateDocById = async (col: string, id: string, data: any) => {
+  console.log(`✏️ [DB] Update ${col}/${id}:`, data);
+  try {
+    await updateDoc(doc(db, col, id), {
       ...data,
       updatedAt: serverTimestamp(),
     });
-    console.log("✅ [DB-PROD] Updated ID:", id);
+    console.log(`✅ [DB] Updated ${col}/${id}`);
     return { success: true };
-  } catch (error) {
-    console.error("❌ [DB-PROD] Update failed", error);
-    return { success: false, error };
+  } catch (e) {
+    console.error(`❌ [DB] Update failed ${col}/${id}:`, e);
+    return { success: false, error: e };
   }
 };
 
-export const deleteProductInDb = async (id: string) => {
-  console.log("🗑️ [DB-PROD] Deleting ID:", id);
+export const deleteDocById = async (col: string, id: string) => {
+  console.log(`🗑️ [DB] Delete ${col}/${id}`);
   try {
-    await deleteDoc(doc(db, "products", id));
-    console.log("✅ [DB-PROD] Deleted ID:", id);
+    await deleteDoc(doc(db, col, id));
+    console.log(`✅ [DB] Deleted ${col}/${id}`);
     return { success: true };
-  } catch (error) {
-    console.error("❌ [DB-PROD] Delete failed", error);
-    return { success: false, error };
+  } catch (e) {
+    console.error(`❌ [DB] Delete failed ${col}/${id}:`, e);
+    return { success: false, error: e };
   }
 };

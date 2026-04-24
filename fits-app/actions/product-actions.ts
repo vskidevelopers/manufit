@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 // ✅ Import Workers (No direct Firebase imports)
 import {
-  createProductInDb,
-  updateProductInDb,
-  deleteProductInDb,
+  createDoc,
+  updateDocById,
+  deleteDocById,
   getCollectionInDb,
 } from "@/lib/firebase";
 
@@ -29,7 +30,7 @@ export async function createProductAction(productData: any) {
   console.log("👔 [ACTION] Create Product Workflow Started");
 
   // 1. Delegate to DB Worker
-  const result = await createProductInDb(productData);
+  const result = await createDoc("products", productData);
 
   if (!result.success) {
     console.error("👔 [ACTION] Workflow Failed at DB step");
@@ -47,7 +48,7 @@ export async function updateProductAction(id: string, productData: any) {
   console.log("👔 [ACTION] Update Product Workflow Started for:", id);
 
   // 1. Delegate to DB Worker
-  const result = await updateProductInDb(id, productData);
+  const result = await updateDocById("products", id, productData);
 
   if (!result.success) {
     console.error("👔 [ACTION] Workflow Failed at DB step");
@@ -85,7 +86,7 @@ export async function deleteProductAction(id: string, imageUrls: string[]) {
   }
 
   // 2. Delegate to DB Worker
-  const result = await deleteProductInDb(id);
+  const result = await deleteDocById("products", id);
 
   if (!result.success) {
     console.error("👔 [ACTION] Workflow Failed at DB step");
