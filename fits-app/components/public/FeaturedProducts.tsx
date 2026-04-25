@@ -15,21 +15,26 @@ export function FeaturedProducts() {
 
     useEffect(() => {
         const loadFeatured = async () => {
+            console.log('[FeaturedProducts] Starting load of featured products...');
             try {
                 const allProducts = await getProductsAction();
-                // Take first 6-8 products as "featured" (or filter by isFeatured flag later)
-                setProducts(allProducts.slice(0, 8));
+                const featured = allProducts.slice(0, 8);
+                console.log(
+                    `[FeaturedProducts] Loaded ${allProducts.length} products, using ${featured.length} featured products.`
+                );
+                setProducts(featured);
             } catch (error) {
-                console.error('❌ [CLIENT] Failed to load featured products:', error);
+                console.error('[FeaturedProducts] Failed to load featured products:', error);
             } finally {
                 setLoading(false);
+                console.log('[FeaturedProducts] Featured products load process finished.');
             }
         };
         loadFeatured();
     }, []);
 
     return (
-        <section className="py-12 md:py-16 lg:py-20 bg-white">
+        <section className="flex justify-center py-12 md:py-16 lg:py-20 bg-white">
             <div className="container px-4">
                 {/* Section Header */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 md:mb-12">

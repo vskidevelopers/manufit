@@ -19,7 +19,7 @@ export function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
             <div className="container flex h-16 items-center justify-between px-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
@@ -75,8 +75,8 @@ export function Navbar() {
                                 href={link.href}
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${pathname === link.href
-                                        ? 'bg-blue-50 text-blue-700'
-                                        : 'text-slate-600 hover:bg-gray-50'
+                                    ? 'bg-blue-50 text-blue-700'
+                                    : 'text-slate-600 hover:bg-gray-50'
                                     }`}
                             >
                                 {link.name}

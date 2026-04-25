@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export function B2BBanner() {
     return (
-        <section className="py-12 md:py-16 bg-gradient-to-r from-blue-600 to-blue-700">
+        <section className=" flex justify-center py-12 md:py-16 bg-gradient-to-r from-blue-600 to-blue-700">
             <div className="container px-4">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                     {/* Content */}

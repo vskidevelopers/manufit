@@ -1,11 +1,10 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth-context";
-import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/sonner";
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+import { Toaster } from "sonner";
+import { Navbar } from "@/components/public/Navbar";
+import { Footer } from "@/components/public/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ManuFitz",
-  description: "Admin Dashboard for ManuFit Apparel",
+  title: "ManuFit | Custom Apparel & Branded Merchandise",
+  description: "Quality custom t-shirts, hoodies, kids wear, office décor, and branded merchandise. Kenya-wide delivery.",
 };
 
 export default function RootLayout({
@@ -28,17 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-            duration={4000}
-          />
-        </AuthProvider>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <Footer />
+        <Toaster position="top-right" richColors closeButton duration={4000} />
       </body>
     </html>
   );

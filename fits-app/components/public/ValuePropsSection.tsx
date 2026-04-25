@@ -44,7 +44,7 @@ const valueProps = [
 
 export function ValuePropsSection() {
     return (
-        <section className="py-12 md:py-16 lg:py-20 bg-white">
+        <section className="flex justify-center py-12 md:py-16 lg:py-20 bg-white">
             <div className="container px-4">
                 {/* Section Header */}
                 <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">

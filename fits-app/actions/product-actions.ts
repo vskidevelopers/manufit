@@ -7,6 +7,7 @@ import {
   updateDocById,
   deleteDocById,
   getCollectionInDb,
+  getCollection,
 } from "@/lib/firebase";
 
 // ✅ Import External Services
@@ -100,8 +101,20 @@ export async function deleteProductAction(id: string, imageUrls: string[]) {
   return { success: true };
 }
 
-export async function getProductsAction() {
-  console.log("👔 [ACTION] Fetch Products Workflow Started");
-  // Delegate to DB Worker
-  return await getCollectionInDb("products");
+// actions/product-actions.ts
+
+export async function getProductsAction(): Promise<Product[]> {
+  console.log("👔 [ACTION] Fetch products");
+  const raw = await getCollection("products");
+
+  // ✅ Serialize: Convert Firebase Timestamps to ISO strings
+  return raw.map((p: any) => ({
+    ...p,
+    currency: p.currency || "KSh",
+    isActive: p.isActive ?? true,
+    images: p.images || [],
+    // Convert Timestamps to plain strings
+    createdAt: p.createdAt?.toDate?.()?.toISOString() || null,
+    updatedAt: p.updatedAt?.toDate?.()?.toISOString() || null,
+  })) as Product[];
 }

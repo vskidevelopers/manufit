@@ -7,11 +7,13 @@ import Link from 'next/link';
 
 export function HeroSection() {
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 py-12 md:py-20 lg:py-28">
+        <section className="flex justify-center relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 py-12 md:py-20 lg:py-28">
             <div className="container px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    {/* Left: Content */}
-                    <div className="space-y-6 text-center lg:text-left">
+
+                    {/* Left: Content - CENTERED ON ALL SCREENS */}
+                    <div className="space-y-6 text-center">
+
                         {/* Badge */}
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
                             <Shirt className="h-4 w-4" />
@@ -25,14 +27,14 @@ export function HeroSection() {
                             <span className="text-blue-600">Your Way</span>
                         </h1>
 
-                        {/* Subheadline */}
-                        <p className="text-base md:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0">
+                        {/* Subheadline - Centered with max-width */}
+                        <p className="text-base md:text-lg text-slate-600 max-w-xl mx-auto">
                             Custom t-shirts, hoodies, and branded merchandise for individuals and organizations.
                             Quality prints, fast turnaround, Kenya-wide delivery.
                         </p>
 
-                        {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                        {/* CTAs - Centered buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Link href="/shop">
                                 <Button size="lg" className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-700">
                                     Shop Now
@@ -46,8 +48,8 @@ export function HeroSection() {
                             </Link>
                         </div>
 
-                        {/* Trust Indicators */}
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-slate-500">
+                        {/* Trust Indicators - Centered */}
+                        <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm text-slate-500">
                             <div className="flex items-center gap-1.5">
                                 <Truck className="h-4 w-4" />
                                 <span>Kenya-wide Delivery</span>
@@ -59,7 +61,7 @@ export function HeroSection() {
                         </div>
                     </div>
 
-                    {/* Right: Hero Image */}
+                    {/* Right: Hero Image - Already centered with mx-auto */}
                     <div className="relative lg:order-last">
                         <div className="relative aspect-square md:aspect-[4/3] lg:aspect-square max-w-md mx-auto">
                             {/* Placeholder - Replace with actual hero image */}
@@ -68,13 +70,14 @@ export function HeroSection() {
                                 <Shirt className="h-24 w-24 md:h-32 md:w-32 text-white/80" />
                             </div>
 
-                            {/* Floating Badge */}
+                            {/* Floating Badge - Keep as is (visual interest) */}
                             <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 hidden md:block">
                                 <p className="text-2xl font-bold text-blue-600">500+</p>
                                 <p className="text-xs text-slate-500">Happy Customers</p>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

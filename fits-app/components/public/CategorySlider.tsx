@@ -15,7 +15,7 @@ const categories = [
 
 export function CategorySlider() {
     return (
-        <section className="py-12 md:py-16 bg-slate-50">
+        <section className="flex justify-center py-12 md:py-16 bg-slate-50">
             <div className="container px-4">
                 {/* Section Header */}
                 <div className="text-center mb-8">

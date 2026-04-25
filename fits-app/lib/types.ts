@@ -28,8 +28,6 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   priceAtPurchase: number;
-
-  // Optional customization fields
   size?: string;
   color?: string;
 

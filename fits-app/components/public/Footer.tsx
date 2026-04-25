@@ -28,7 +28,7 @@ const locations = ['Gaberone, Nairobi', 'Accra', 'Khoja'];
 
 export function Footer() {
     return (
-        <footer className="border-t bg-white">
+        <footer className="border-t bg-white flex justify-center">
             <div className="container px-4 py-12 md:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
                     {/* Brand Column */}
