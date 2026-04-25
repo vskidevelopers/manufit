@@ -1,7 +1,7 @@
-
+// components/public/cart/AddToCartDialog.tsx
 'use client';
 
-import { useCart } from '@/lib/CartContext';
+import { useRouter } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
@@ -11,7 +11,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, ShoppingBag, } from 'lucide-react';
+import { Check, ShoppingBag } from 'lucide-react';
 
 interface AddToCartDialogProps {
     open: boolean;
@@ -26,15 +26,20 @@ export function AddToCartDialog({
     productName,
     quantity,
 }: AddToCartDialogProps) {
-    const { setIsOpen: setCartDrawerOpen } = useCart();
+    const router = useRouter();
 
     const handleViewCart = () => {
+        // Close dialog first, then navigate
         onOpenChange(false);
-        setCartDrawerOpen(true);
+        // Navigate to dedicated cart page
+        router.push('/cart');
     };
 
     const handleContinueShopping = () => {
+        // Close dialog first, then navigate
         onOpenChange(false);
+        // Navigate back to shop
+        router.push('/shop');
     };
 
     return (

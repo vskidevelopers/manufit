@@ -62,6 +62,7 @@ export interface Order {
   // Metadata (optional, server-managed)
   createdAt?: Timestamp | any;
   updatedAt?: Timestamp | any;
+  mpesaCode?: string;
 
   // Future-proof: allow additional fields without breaking types
   [key: string]: any;

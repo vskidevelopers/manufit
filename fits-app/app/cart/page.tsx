@@ -1,8 +1,6 @@
 
 import { CartProvider } from '@/lib/CartContext';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
 import { CartPageContent } from '@/components/public/cart/CartPageContent';
 
 // ✅ SEO Metadata (only works in Server Components)
