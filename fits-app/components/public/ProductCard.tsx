@@ -17,8 +17,10 @@ export function ProductCard({ product }: ProductCardProps) {
         return `${currency} ${amount.toLocaleString()}`;
     };
 
+    const availableSizes = product.availableSizes ?? [];
+
     return (
-        <Link href={`/product/${product.id}`}>
+        <Link href={`/shop/${product.id}`}>
             <Card className="group overflow-hidden border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
                 {/* Image */}
                 <div className="aspect-[3/4] bg-slate-100 overflow-hidden">
@@ -65,10 +67,10 @@ export function ProductCard({ product }: ProductCardProps) {
                     </p>
 
                     {/* Sizes Preview */}
-                    {product.availableSizes?.length > 0 && (
+                    {availableSizes.length > 0 && (
                         <p className="text-xs text-slate-500">
-                            Sizes: {product.availableSizes.slice(0, 3).join(', ')}
-                            {product.availableSizes.length > 3 && '+'}
+                            Sizes: {availableSizes.slice(0, 3).join(', ')}
+                            {availableSizes.length > 3 && '+'}
                         </p>
                     )}
                 </CardContent>

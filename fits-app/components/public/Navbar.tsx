@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X, Shirt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CartCounter } from '@/components/public/cart/CartCounter';
 
 const navLinks = [
     { name: 'Home', href: '/' },
@@ -45,13 +46,10 @@ export function Navbar() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="relative" aria-label="View cart">
-                        <ShoppingCart className="h-5 w-5" />
-                        {/* Cart count badge - future */}
-                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center">
-                            0
-                        </span>
-                    </Button>
+                    <Link href="/cart" className="relative">
+                        <CartCounter />
+                    </Link>
+
 
                     {/* Mobile Hamburger */}
                     <button

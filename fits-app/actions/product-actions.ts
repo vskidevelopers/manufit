@@ -6,9 +6,10 @@ import {
   createDoc,
   updateDocById,
   deleteDocById,
-  getCollectionInDb,
   getCollection,
+  getDocById,
 } from "@/lib/firebase";
+import { Product } from "@/lib/types";
 
 // ✅ Import External Services
 import { v2 as cloudinary } from "cloudinary";
@@ -26,6 +27,38 @@ cloudinary.config({
 // ==========================================
 // 🛍️ PRODUCT ACTIONS (BUSINESS LOGIC)
 // ==========================================
+
+// --- HELPER: Serialize Timestamps ---
+const serializeTimestamp = (ts: any): string | null => {
+  if (!ts) return null;
+  if (typeof ts === "string") return ts;
+  if (ts.toDate) return ts.toDate().toISOString();
+  if (ts instanceof Date) return ts.toISOString();
+  return null;
+}; // --- GET SINGLE PRODUCT BY ID ---
+export const getProductAction = async (id: string): Promise<Product | null> => {
+  console.log(`👔 [ACTION] Fetch product ${id}`);
+
+  const product = await getDocById("products", id);
+
+  if (!product) {
+    console.warn(`⚠️ [ACTION] Product ${id} not found`);
+    return null;
+  }
+
+  // Normalize with defaults + serialize timestamps
+  const productData = product as any;
+  return {
+    ...product,
+    currency: "KSh",
+    isActive: productData.isActive ?? true,
+    images: productData.images || [],
+    availableSizes: productData.availableSizes || [],
+    availableColors: productData.availableColors || [],
+    createdAt: serializeTimestamp(productData.createdAt),
+    updatedAt: serializeTimestamp(productData.updatedAt),
+  } as Product;
+};
 
 export async function createProductAction(productData: any) {
   console.log("👔 [ACTION] Create Product Workflow Started");
