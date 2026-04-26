@@ -64,10 +64,15 @@ export function HeroSection() {
                     {/* Right: Hero Image - Already centered with mx-auto */}
                     <div className="relative lg:order-last">
                         <div className="relative aspect-square md:aspect-[4/3] lg:aspect-square max-w-md mx-auto">
-                            {/* Placeholder - Replace with actual hero image */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-blue-400 rounded-2xl md:rounded-3xl shadow-2xl" />
+                            <div className="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl">
+                                <img
+                                    src="https://wrmohoehmtaqh7kq.public.blob.vercel-storage.com/manu%20fits%20assets/blob-2026-04-26%20at%202.55.28%20PM.webp"
+                                    alt="Custom apparel mockup"
+                                    className="h-full w-full object-cover object-center"
+                                />
+                            </div>
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <Shirt className="h-24 w-24 md:h-32 md:w-32 text-white/80" />
+                                <Shirt className="h-24 w-24 md:h-32 md:w-32 text-blue-500" />
                             </div>
 
                             {/* Floating Badge - Keep as is (visual interest) */}

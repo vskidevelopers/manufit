@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { Navbar } from "@/components/public/Navbar";
-import { Footer } from "@/components/public/Footer";
+import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/CartContext";
+import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: "Quality custom t-shirts, hoodies, kids wear, office décor, and branded merchandise. Kenya-wide delivery.",
 };
 
+// ✅ Root Layout (Server Component - NO 'use client')
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,12 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
-        <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <Toaster position="top-right" richColors closeButton duration={4000} />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {/* Client component handles conditional Navbar/Footer */}
+            <ConditionalLayout>{children}</ConditionalLayout>
+            <Toaster position="top-right" richColors closeButton duration={4000} />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

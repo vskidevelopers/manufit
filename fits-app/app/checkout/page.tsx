@@ -1,6 +1,6 @@
 
 
-import { CheckoutContent } from '@/components/checkout/CheckoutContent';
+import { CheckoutContent } from '@/components/public/checkout/CheckoutContent';
 import { CartProvider } from '@/lib/CartContext';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';

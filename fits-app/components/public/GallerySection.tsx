@@ -1,10 +1,10 @@
 'use client';
 
 const galleryImages = [
-    { src: '/images/gallery-1.jpg', alt: 'Custom t-shirts for corporate event' },
-    { src: '/images/gallery-2.jpg', alt: 'Branded hoodies for school team' },
-    { src: '/images/gallery-3.jpg', alt: 'Office decor with company logo' },
-    { src: '/images/gallery-4.jpg', alt: 'Kids wear collection' },
+    { src: 'https://wrmohoehmtaqh7kq.public.blob.vercel-storage.com/manu%20fits%20assets/blob-2026-04-26%20at%203.47.54%20PM.png', alt: 'Custom t-shirts for corporate event' },
+    { src: 'https://wrmohoehmtaqh7kq.public.blob.vercel-storage.com/manu%20fits%20assets/blob-2026-04-26%20at%203.48.11%20PM.webp', alt: 'Branded hoodies for school team' },
+    { src: 'https://wrmohoehmtaqh7kq.public.blob.vercel-storage.com/manu%20fits%20assets/blob-2026-04-26%20at%203.48.36%20PM.jpg', alt: 'Office decor with company logo' },
+    { src: 'https://wrmohoehmtaqh7kq.public.blob.vercel-storage.com/manu%20fits%20assets/blob-2026-04-26%20at%203.48.52%20PM.jpg', alt: 'Kids wear collection' },
 ];
 
 export function GallerySection() {
@@ -28,12 +28,11 @@ export function GallerySection() {
                             key={index}
                             className="aspect-square bg-slate-200 rounded-xl overflow-hidden group"
                         >
-                            {/* Placeholder - Replace with actual <img> tags */}
-                            <div className="w-full h-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center">
-                                <span className="text-slate-500 text-xs text-center px-2">
-                                    Image {index + 1}
-                                </span>
-                            </div>
+                            <img
+                                src={image.src}
+                                alt={image.alt}
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     ))}
                 </div>

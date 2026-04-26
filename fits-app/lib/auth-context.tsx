@@ -1,38 +1,47 @@
+// lib/auth-context.tsx
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from 'firebase/auth';
-import { subscribeToAuthChanges, logoutUser } from '@/lib/firebase'; // Import from central file
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, logout: async () => { } });
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = subscribeToAuthChanges((user) => {
-            setUser(user);
-            setLoading(false);
+        console.log('🔐 [AUTH] Setting up auth listener...');
+
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            console.log('🔐 [AUTH] Auth state changed:', firebaseUser?.email || 'null');
+            setUser(firebaseUser || null);
+            setLoading(false); // ✅ Critical: Always set to false after auth check
         });
-        return () => unsubscribe();
+
+        return () => {
+            console.log('🔐 [AUTH] Cleaning up auth listener');
+            unsubscribe();
+        };
     }, []);
 
-    const logout = async () => {
-        await logoutUser(); // Calls the centralized function
-    };
-
     return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
+        <AuthContext.Provider value={{ user, loading }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};

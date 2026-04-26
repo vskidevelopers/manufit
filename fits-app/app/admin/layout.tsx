@@ -7,7 +7,7 @@ import { logoutUser } from '@/lib/firebase';
 import { toast } from 'sonner';
 import {
     LogOut, LayoutDashboard, ShoppingBag, Users, Package,
-    Menu, X
+    Menu, X, FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -17,6 +17,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const router = useRouter();
     const pathname = usePathname();
 
+    // Inside AdminLayout, before the loading check:
+    console.log('🔐 [LAYOUT] Auth state:', { user, loading });
+
+
     // Mobile menu state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -24,11 +28,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     useEffect(() => {
         if (!loading && !user) {
             console.log('🔍 [LAYOUT] No active user → redirecting to /login');
-            router.push('/login');
+            router.push('/login ');
         }
     }, [loading, user, router]);
 
-    // Close mobile menu on route change
+    // Close mobile menu on route changes
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
@@ -44,17 +48,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
     }, [isMobileMenuOpen]);
 
-    // Show loading while checking auth
+    // Then your existing check:
     if (loading) {
+
         return (
             <div className="flex h-screen items-center justify-center bg-slate-50">
                 <div className="text-center space-y-3">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto" />
                     <p className="text-gray-600 font-medium">Verifying access...</p>
+                    {/* Debug: Show auth state */}
+                    <p className="text-xs text-slate-400">
+                        user: {user ? '✓' : '✗'}, loading: {loading ? 'true' : 'false'}
+                    </p>
                 </div>
             </div>
         );
     }
+
 
     // If no user after loading, return null (redirect is happening)
     if (!user) {
@@ -70,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 duration: 3000,
             });
             console.log('✅ [LAYOUT] Logout complete → redirecting to login');
-            router.push('/login');
+            router.push('/');
         } catch (error) {
             console.error('❌ [LAYOUT] Logout failed:', error);
             toast.error('Sign out failed', {
@@ -85,6 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
         { name: 'Products', href: '/admin/products', icon: Package },
         { name: 'Customers', href: '/admin/customers', icon: Users },
+        { name: 'Quotes', href: '/admin/quotes', icon: FileText },
     ];
 
     return (

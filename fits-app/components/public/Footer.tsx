@@ -15,6 +15,7 @@ const footerLinks = {
         { name: 'Contact', href: '/contact' },
         { name: 'Custom Quotes', href: '/contact' },
         { name: 'Shipping Info', href: '/about#shipping' },
+        { name: 'Admin', href: '/admin' },
     ],
     support: [
         { name: 'Track Order', href: '/track' },

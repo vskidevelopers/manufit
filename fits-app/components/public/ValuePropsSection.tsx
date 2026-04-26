@@ -63,7 +63,7 @@ export function ValuePropsSection() {
                         return (
                             <div
                                 key={index}
-                                className="group p-6 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300"
+                                className="group p-6 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
                             >
                                 <div className={`h-12 w-12 rounded-lg ${prop.color} flex items-center justify-center mb-4`}>
                                     <Icon className="h-6 w-6" />
