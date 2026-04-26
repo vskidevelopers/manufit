@@ -53,7 +53,7 @@ export default async function ShopPage({
       />
 
       <div className="min-h-screen bg-slate-50">
-        <ShopHeader totalProducts={allProducts.length} />
+        <ShopHeader />
         <div className="flex justify-center">
           {/* Header */}
 
@@ -61,7 +61,7 @@ export default async function ShopPage({
             <div className="flex gap-8">
 
               {/* Desktop Sidebar */}
-              <aside className="hidden lg:block w-64 flex-shrink-0">
+              <aside className="hidden lg:block w-64 shrink-0">
                 <div className="sticky top-24 space-y-6">
                   <ProductFilters
                     category={category}

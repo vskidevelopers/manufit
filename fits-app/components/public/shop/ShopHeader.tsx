@@ -4,9 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Filter, Search, Sparkles } from 'lucide-react';
 
-interface ShopHeaderProps {
-    totalProducts: number;
-}
+
 
 export function ShopHeader() {
     return (

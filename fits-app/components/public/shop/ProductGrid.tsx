@@ -24,6 +24,7 @@ export function ProductGrid({
     sort = 'featured',
 }: ProductGridProps) {
     // Client-side filtering
+    // eslint-disable-next-line prefer-const
     let filtered = products.filter((product) => {
         if (category && product.category !== category) return false;
         if (minPrice && (product.basePrice ?? 0) < minPrice) return false;
