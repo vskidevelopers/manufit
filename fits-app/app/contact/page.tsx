@@ -1,26 +1,16 @@
-// app/contact/page.tsx
-'use client';
 
+import { ContactForm } from '@/components/public/contact/ContactForm';
 import Link from 'next/link';
 import { ArrowLeft, Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 
+// ✅ SEO Metadata (Server Components only)
 export const metadata = {
     title: 'Contact Us | ManuFit',
     description: 'Get in touch with ManuFit for custom apparel inquiries, quotes, and support.',
 };
 
 export default function ContactPage() {
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast.success('Message sent!', {
-            description: 'We will get back to you within 24 hours.',
-        });
-    };
-
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Breadcrumb */}
@@ -79,40 +69,9 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Contact Form */}
-                    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-                        <h2 className="text-lg font-semibold text-slate-900">Send a Message</h2>
+                    {/* Contact Form (Client Component) */}
+                    <ContactForm />
 
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" placeholder="Your name" required />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" placeholder="your@email.com" required />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Phone</Label>
-                            <Input id="phone" type="tel" placeholder="07XXXXXXXX" />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="message">Message</Label>
-                            <textarea
-                                id="message"
-                                rows={4}
-                                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                                placeholder="Tell us about your order or inquiry..."
-                                required
-                            />
-                        </div>
-
-                        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                            Send Message
-                        </Button>
-                    </form>
                 </div>
             </div>
         </div>
