@@ -4,8 +4,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Shirt, ShoppingBag, Home, Package, Info, Mail } from 'lucide-react';
+import { Menu, X, ShoppingBag, Home, Package, Info, Mail } from 'lucide-react';
 import { CartCounter } from '@/components/public/cart/CartCounter';
+import Logo from './logo.png';
 
 const navLinks = [
     { name: 'Home', href: '/', icon: Home },
@@ -63,8 +64,8 @@ export function Navbar() {
 
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
-                        <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                            <Shirt className="h-5 w-5 text-white" />
+                        <div className="h-8 w-8 rounded-lg flex items-center justify-center">
+                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-8" />
                         </div>
                         <span>ManuFit</span>
                     </Link>
@@ -127,8 +128,9 @@ export function Navbar() {
                 {/* Header with Close Button */}
                 <div className="flex items-center justify-between p-4 border-b">
                     <div className="flex items-center gap-2 font-bold text-lg text-slate-900">
-                        <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                            <Shirt className="h-4 w-4 text-white" />
+                        <div className="h-7 w-7 rounded-lg flex items-center justify-center">
+                            {/* <Shirt className="h-4 w-4 text-white" /> */}
+                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-8" />
                         </div>
                         <span>ManuFit</span>
                     </div>

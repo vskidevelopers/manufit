@@ -13,6 +13,7 @@ import {
 
 import { revalidatePath } from "next/cache";
 import { Order, OrderStatus } from "@/lib/types";
+import { adminDb } from "@/lib/firebase-admin";
 
 // --- HELPER: Generate Order Number ---
 function generateOrderNumber(): string {
@@ -73,30 +74,23 @@ export async function getOrderAction(id: string): Promise<Order | null> {
 }
 
 // --- TRACK ORDER (Public) ---
-export async function trackOrderAction(orderNumber: string, phone: string) {
-  console.log("👔 [ACTION] Track Order Workflow Started");
+export const trackOrderAction = async (orderNumber: string, phone: string) => {
+  // ✅ Uses adminDb - bypasses Firestore rules
+  const ordersRef = adminDb.collection("orders");
+  const query = ordersRef
+    .where("orderNumber", "==", orderNumber)
+    .where("customerPhone", "==", phone);
 
-  if (!orderNumber || !phone) {
-    return { success: false, error: "Missing order number or phone" };
-  }
+  const snapshot = await query.get();
 
-  // Use generic query helper
-  const orders = (await getDocsByField(
-    "orders",
-    "orderNumber",
-    orderNumber,
-    1,
-  )) as Order[];
-
-  // Filter by phone in memory (Firestore doesn't allow multiple where on different fields without index)
-  const order = orders.find((o) => o?.customerPhone === phone);
-
-  if (!order) {
+  if (snapshot.empty) {
     return { success: false, error: "Order not found" };
   }
 
-  return { success: true, order: order as Order };
-}
+  // ✅ Server-side validation (phone match checked here, not in rules)
+  const order = snapshot.docs[0].data();
+  return { success: true, order };
+};
 
 // --- UPDATE STATUS ---
 export const updateOrderStatusAction = async (
