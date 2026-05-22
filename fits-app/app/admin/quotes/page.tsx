@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // app/admin/quotes/page.tsx
 'use client';
 

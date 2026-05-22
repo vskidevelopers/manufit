@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // components/public/Navbar.tsx
 'use client';
 
@@ -64,10 +65,10 @@ export function Navbar() {
 
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
-                        <div className="h-8 w-8 rounded-lg flex items-center justify-center">
-                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-8" />
+                        <div className="h-8 rounded-lg flex items-center justify-center">
+                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-auto" />
                         </div>
-                        <span>ManuFit</span>
+
                     </Link>
 
                     {/* Desktop Nav */}
@@ -128,11 +129,11 @@ export function Navbar() {
                 {/* Header with Close Button */}
                 <div className="flex items-center justify-between p-4 border-b">
                     <div className="flex items-center gap-2 font-bold text-lg text-slate-900">
-                        <div className="h-7 w-7 rounded-lg flex items-center justify-center">
+                        <div className="h-7  rounded-lg flex items-center justify-center">
                             {/* <Shirt className="h-4 w-4 text-white" /> */}
-                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-8" />
+                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-auto" />
                         </div>
-                        <span>ManuFit</span>
+
                     </div>
                     <button
                         onClick={closeMenu}

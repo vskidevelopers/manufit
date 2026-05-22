@@ -9,11 +9,11 @@ import { NewsletterSection } from '@/components/public/NewsletterSection';
 
 // SEO Metadata
 export const metadata = {
-  title: 'ManuFit | Custom Apparel & Branded Merchandise Kenya',
+  title: 'i-DRiP | Custom Apparel & Branded Merchandise Kenya',
   description: 'Quality custom t-shirts, hoodies, kids wear, office décor, and branded merchandise. Kenya-wide delivery. Get a quote for bulk orders.',
-  keywords: ['custom t-shirts Kenya', 'branded merchandise', 'corporate apparel', 'hoodies Nairobi', 'ManuFit'],
+  keywords: ['custom t-shirts Kenya', 'branded merchandise', 'corporate apparel', 'hoodies Nairobi', 'i-DRiP'],
   openGraph: {
-    title: 'ManuFit | Custom Apparel & Branded Merchandise',
+    title: 'i-DRiP | Custom Apparel & Branded Merchandise',
     description: 'Quality custom apparel for individuals and organizations. Kenya-wide delivery.',
     type: 'website',
     locale: 'en_KE',
@@ -24,9 +24,9 @@ export const metadata = {
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'Store',
-  name: 'ManuFit',
+  name: 'i-DRiP Custom Apparel & Merchandise',
   description: 'Custom apparel and branded merchandise',
-  url: 'https://manufit.co.ke',
+  url: 'https://i-DRiP.co.ke',
   telephone: '+254706406009',
   address: {
     '@type': 'PostalAddress',

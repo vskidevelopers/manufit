@@ -73,7 +73,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Dashboard</h1>
-                    <p className="text-slate-600 text-sm mt-1">Overview of your ManuFit store</p>
+                    <p className="text-slate-600 text-sm mt-1">Overview of your i-DRiP store</p>
                 </div>
                 <Button onClick={loadStats} variant="outline" size="sm" className="gap-2" disabled={loading}>
                     <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />

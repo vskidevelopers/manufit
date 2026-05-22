@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// actions/quote-actions.ts
 "use server";
 
+// ✅ Import adminDb for admin operations (server-only, bypasses rules)
+import { adminDb } from "@/lib/firebase-admin";
+
+// ✅ Import client db for public operations (respects Firestore rules)
 import { db } from "@/lib/firebase";
+
+// ✅ Import Firestore methods for client operations
 import {
   collection,
   addDoc,
@@ -11,7 +19,13 @@ import {
   doc,
   Timestamp,
 } from "firebase/firestore";
+
+// ✅ Import Next.js utilities
 import { revalidatePath } from "next/cache";
+
+// ==========================================
+// 🔧 TYPES & HELPERS
+// ==========================================
 
 export interface QuoteRequest {
   id?: string;
@@ -25,16 +39,38 @@ export interface QuoteRequest {
   details?: string;
   status: "pending" | "contacted" | "quoted" | "converted" | "lost";
   notes?: string;
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt?: any; // Can be Timestamp or ISO string
+  updatedAt?: any;
   [key: string]: any;
 }
 
-// --- SUBMIT QUOTE REQUEST (Public) ---
+// --- Helper: Serialize Timestamp to ISO string (for client props) ---
+const serializeTimestamp = (ts: any): string | null => {
+  if (!ts) return null;
+  if (typeof ts === "string") return ts;
+  if (ts.toDate) return ts.toDate().toISOString(); // Firebase Timestamp (client or admin)
+  if (ts instanceof Date) return ts.toISOString();
+  return null;
+};
+
+// --- Helper: Normalize Quote Data ---
+const normalizeQuote = (raw: any): QuoteRequest => ({
+  ...raw,
+  status: raw.status || "pending",
+  createdAt: serializeTimestamp(raw.createdAt),
+  updatedAt: serializeTimestamp(raw.updatedAt),
+});
+
+// ==========================================
+// 📝 PUBLIC ACTIONS (Respect Firestore Rules)
+// ==========================================
+
+// --- SUBMIT QUOTE REQUEST (Public: /quote page) ---
+// ✅ Uses client db + rules: allow create: if true
 export const submitQuoteRequest = async (
   data: Omit<QuoteRequest, "id" | "status" | "createdAt" | "updatedAt">,
 ) => {
-  console.log("📝 [ACTION] Submit quote request:", data);
+  console.log("📝 [ACTION] Submit quote request (Public):", data);
 
   try {
     const quoteData: Omit<QuoteRequest, "id"> = {
@@ -44,10 +80,12 @@ export const submitQuoteRequest = async (
       updatedAt: Timestamp.now(),
     };
 
+    // ✅ Use client db + Firestore rules (allow create: if true)
     const docRef = await addDoc(collection(db, "quotes"), quoteData);
 
     console.log("✅ [ACTION] Quote submitted:", docRef.id);
 
+    // Revalidate admin path (admin uses adminDb, but cache still needs invalidation)
     revalidatePath("/admin/quotes");
 
     return {
@@ -65,18 +103,27 @@ export const submitQuoteRequest = async (
   }
 };
 
-// --- GET ALL QUOTES (Admin) ---
+// ==========================================
+// 👔 ADMIN ACTIONS (Use adminDb - Bypass Rules)
+// ==========================================
+
+// --- GET ALL QUOTES (Admin: /admin/quotes page) ---
+// ✅ Uses adminDb to bypass rules (admin-only read)
 export const getQuotesAction = async (): Promise<QuoteRequest[]> => {
-  console.log("👔 [ACTION] Fetch all quotes");
+  console.log("👔 [ACTION] Fetch all quotes (Admin)");
 
   try {
-    const q = query(collection(db, "quotes"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
+    // ✅ Use adminDb directly for admin operations
+    const quotesRef = adminDb.collection("quotes");
+    const snapshot = await quotesRef.orderBy("createdAt", "desc").get();
 
-    const quotes = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as QuoteRequest[];
+    const quotes = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return normalizeQuote({
+        id: doc.id,
+        ...data,
+      });
+    });
 
     console.log(`✅ [ACTION] Fetched ${quotes.length} quotes`);
     return quotes;
@@ -86,29 +133,45 @@ export const getQuotesAction = async (): Promise<QuoteRequest[]> => {
   }
 };
 
-// --- UPDATE QUOTE STATUS (Admin) ---
+// --- UPDATE QUOTE STATUS (Admin Only) ---
+// ✅ Uses adminDb to bypass rules
 export const updateQuoteStatus = async (
   id: string,
   status: QuoteRequest["status"],
   notes?: string,
 ) => {
-  console.log(`👔 [ACTION] Update quote ${id} → ${status}`);
+  console.log(`👔 [ACTION] Update quote ${id} → ${status} (Admin)`);
+
+  // Validation
+  const validStatuses: QuoteRequest["status"][] = [
+    "pending",
+    "contacted",
+    "quoted",
+    "converted",
+    "lost",
+  ];
+  if (!validStatuses.includes(status)) {
+    return { success: false, error: "Invalid status" };
+  }
 
   try {
-    const quoteRef = doc(db, "quotes", id);
+    // ✅ Use adminDb directly
+    const quoteRef = adminDb.collection("quotes").doc(id);
+
     const updateData: any = {
       status,
-      updatedAt: Timestamp.now(),
+      updatedAt: new Date().toISOString(),
     };
 
     if (notes) {
       updateData.notes = notes;
     }
 
-    await updateDoc(quoteRef, updateData);
+    await quoteRef.update(updateData);
 
     console.log("✅ [ACTION] Quote updated:", id);
 
+    // Revalidate admin path
     revalidatePath("/admin/quotes");
 
     return {
@@ -116,7 +179,7 @@ export const updateQuoteStatus = async (
       message: "Quote status updated successfully.",
     };
   } catch (error) {
-    console.error("❌ [ACTION] Failed to update quote:", error);
+    console.error(`❌ [ACTION] Failed to update quote ${id}:`, error);
     return {
       success: false,
       error: "Failed to update quote status.",

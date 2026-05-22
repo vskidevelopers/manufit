@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ManuFit | Custom Apparel & Branded Merchandise",
+  title: "i-DRiP | Custom Apparel & Branded Merchandise",
   description: "Quality custom t-shirts, hoodies, kids wear, office décor, and branded merchandise. Kenya-wide delivery.",
 };
 

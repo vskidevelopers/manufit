@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
                             <Package size={18} className="text-blue-600" />
                         </div>
-                        <h1 className="text-lg font-bold text-slate-900">ManuFit Admin</h1>
+                        <h1 className="text-lg font-bold text-slate-900">i-Drip Admin</h1>
                     </div>
 
                     {/* Mobile: Close button */}

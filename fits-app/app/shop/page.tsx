@@ -12,18 +12,18 @@ import { ShopProductGrid } from '@/components/public/shop/ShopProductGrid';
 
 // SEO Metadata
 export const metadata = {
-  title: 'Shop | ManuFit Custom Apparel & Merchandise',
+  title: 'Shop | i-DRiP Custom Apparel & Merchandise',
   description: 'Browse our collection of custom t-shirts, hoodies, kids wear, office décor, and branded merchandise. Kenya-wide delivery.',
-  keywords: ['shop custom t-shirts', 'buy hoodies Kenya', 'branded merchandise', 'ManuFit store'],
+  keywords: ['shop custom t-shirts', 'buy hoodies Kenya', 'branded merchandise', 'i-DRiP store'],
 };
 
 // Structured Data
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'ManuFit Shop',
+  name: 'i-DRiP Shop',
   description: 'Custom apparel and branded merchandise',
-  url: 'https://manufit.co.ke/shop',
+  url: 'https://i-DRiP.co.ke/shop',
 };
 
 export default async function ShopPage({
