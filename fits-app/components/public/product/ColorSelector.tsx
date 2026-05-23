@@ -20,21 +20,24 @@ const COLOR_MAP: Record<string, string> = {
 
 interface ColorSelectorProps {
     colors: string[];
+    selectedColor?: string;
     onColorChange?: (color: string) => void;
 }
 
-export function ColorSelector({ colors, onColorChange }: ColorSelectorProps) {
-    const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+export function ColorSelector({ colors, selectedColor, onColorChange }: ColorSelectorProps) {
+    const [localColor, setLocalColor] = useState<string | undefined>(undefined);
+
+    const activeColor = selectedColor ?? localColor;
+
+    const handleSelect = (color: string) => {
+        setLocalColor(color);
+        onColorChange?.(color);
+    };
 
     // Defensive: ensure colors is a valid array
     const validColors = Array.isArray(colors) ? colors.filter(Boolean) : [];
 
     if (!validColors.length) return null;
-
-    const handleSelect = (color: string) => {
-        setSelectedColor(color);
-        onColorChange?.(color);
-    };
 
     return (
         <div className="space-y-3">
@@ -42,7 +45,7 @@ export function ColorSelector({ colors, onColorChange }: ColorSelectorProps) {
             <div className="flex flex-wrap gap-3">
                 {validColors.map((color) => {
                     const bgClass = COLOR_MAP[color] || 'bg-slate-400';
-                    const isSelected = selectedColor === color;
+                    const isSelected = activeColor === color;
 
                     return (
                         <button
@@ -60,9 +63,9 @@ export function ColorSelector({ colors, onColorChange }: ColorSelectorProps) {
                     );
                 })}
             </div>
-            {selectedColor && (
+            {activeColor && (
                 <p className="text-xs text-slate-500">
-                    Selected: <span className="font-medium text-slate-900">{selectedColor}</span>
+                    Selected: <span className="font-medium text-slate-900">{activeColor}</span>
                 </p>
             )}
         </div>

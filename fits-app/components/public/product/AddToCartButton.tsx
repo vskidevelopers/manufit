@@ -11,13 +11,17 @@ import { toast } from 'sonner';
 
 interface AddToCartButtonProps {
     product: Product;
+    selectedSize?: string;
+    selectedColor?: string;
 }
 
-export function AddToCartButton({ product }: AddToCartButtonProps) {
+export function AddToCartButton({
+    product,
+    selectedSize,
+    selectedColor
+}: AddToCartButtonProps) {
     const { addItem } = useCart();
 
-    const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-    const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
     const [showDialog, setShowDialog] = useState(false);
@@ -72,63 +76,6 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     return (
         <>
             <div className="space-y-4 pt-4 border-t">
-                {/* Size Selector (if applicable) */}
-                {product.availableSizes?.length ? (
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-900">Select Size</label>
-                        <div className="flex flex-wrap gap-2">
-                            {product.availableSizes.map((size) => (
-                                <Button
-                                    key={size}
-                                    variant={selectedSize === size ? 'default' : 'outline'}
-                                    size="sm"
-                                    onClick={() => setSelectedSize(size)}
-                                    className="min-w-[3rem]"
-                                    aria-pressed={selectedSize === size}
-                                >
-                                    {size}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                ) : null}
-
-                {/* Color Selector (if applicable) */}
-                {product.availableColors?.length ? (
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-900">Select Color</label>
-                        <div className="flex flex-wrap gap-3">
-                            {product.availableColors.map((color) => {
-                                const bgClass = {
-                                    'Black': 'bg-black',
-                                    'White': 'bg-white border-2 border-slate-300',
-                                    'Red': 'bg-red-600',
-                                    'Blue': 'bg-blue-600',
-                                    'Green': 'bg-green-600',
-                                    'Gray': 'bg-gray-500',
-                                    'Navy': 'bg-blue-900',
-                                    'Pink': 'bg-pink-500',
-                                }[color] || 'bg-slate-400';
-
-                                return (
-                                    <button
-                                        key={color}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`
-                      h-9 w-9 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                      ${bgClass}
-                      ${selectedColor === color ? 'ring-2 ring-blue-600 ring-offset-2 scale-110 shadow-md' : 'hover:scale-105 shadow-sm'}
-                    `}
-                                        aria-label={`Select ${color}`}
-                                        aria-pressed={selectedColor === color}
-                                        title={color}
-                                    />
-                                );
-                            })}
-                        </div>
-                    </div>
-                ) : null}
-
                 {/* Quantity Selector */}
                 <div className="flex items-center gap-4 pt-2">
                     <label className="text-sm font-semibold text-slate-900">Quantity</label>

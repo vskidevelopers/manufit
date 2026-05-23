@@ -49,7 +49,7 @@ export function ValuePropsSection() {
                 {/* Section Header */}
                 <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
                     <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 mb-3">
-                        Why Choose ManuFit?
+                        Why Choose i-Drip?
                     </h2>
                     <p className="text-slate-600 text-sm md:text-base">
                         We make custom apparel simple, affordable, and stress-free.

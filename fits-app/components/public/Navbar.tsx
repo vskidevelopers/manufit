@@ -66,7 +66,7 @@ export function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl text-slate-900">
                         <div className="h-8 rounded-lg flex items-center justify-center">
-                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-auto" />
+                            <img src={Logo.src} alt="i-Drip Logo" className="h-8 w-auto" />
                         </div>
 
                     </Link>
@@ -131,7 +131,7 @@ export function Navbar() {
                     <div className="flex items-center gap-2 font-bold text-lg text-slate-900">
                         <div className="h-7  rounded-lg flex items-center justify-center">
                             {/* <Shirt className="h-4 w-4 text-white" /> */}
-                            <img src={Logo.src} alt="ManuFit Logo" className="h-8 w-auto" />
+                            <img src={Logo.src} alt="i-Drip Logo" className="h-8 w-auto" />
                         </div>
 
                     </div>

@@ -8,9 +8,9 @@ import { QuoteBenefits } from '@/components/public/quote/QuoteBenefits';
 
 // ✅ SEO Metadata
 export const metadata = {
-    title: 'Request a Quote | ManuFit - Bulk Orders & Custom Branding',
+    title: 'Request a Quote | i-Drip - Bulk Orders & Custom Branding',
     description: 'Get a custom quote for bulk orders, corporate branding, school uniforms, or event merchandise. Free design support for orders 50+.',
-    keywords: ['bulk t-shirt quote', 'corporate branding Kenya', 'custom merchandise quote', 'ManuFit bulk order'],
+    keywords: ['bulk t-shirt quote', 'corporate branding Kenya', 'custom merchandise quote', 'i-Drip bulk order'],
 };
 
 export default function QuotePage() {

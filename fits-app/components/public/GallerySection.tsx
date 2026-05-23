@@ -40,7 +40,7 @@ export function GallerySection() {
                 {/* Instagram CTA */}
                 <div className="text-center mt-8">
                     <a
-                        href="https://instagram.com/manufit"
+                        href="https://instagram.com/i-Drip"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"

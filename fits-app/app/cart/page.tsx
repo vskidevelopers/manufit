@@ -5,7 +5,7 @@ import { CartPageContent } from '@/components/public/cart/CartPageContent';
 
 // ✅ SEO Metadata (only works in Server Components)
 export const metadata = {
-    title: 'Your Cart | ManuFit',
+    title: 'Your Cart | i-Drip',
     description: 'Review your order before checkout. Custom apparel and branded merchandise.',
 };
 

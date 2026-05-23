@@ -7,21 +7,24 @@ import { Button } from '@/components/ui/button';
 
 interface SizeSelectorProps {
     sizes: string[];
+    selectedSize?: string;
     onSizeChange?: (size: string) => void;
 }
 
-export function SizeSelector({ sizes, onSizeChange }: SizeSelectorProps) {
-    const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+export function SizeSelector({ sizes, selectedSize, onSizeChange }: SizeSelectorProps) {
+    const [localSize, setLocalSize] = useState<string | undefined>(undefined);
+
+    const activeSize = selectedSize ?? localSize;
+
+    const handleSelect = (size: string) => {
+        setLocalSize(size);
+        onSizeChange?.(size);
+    };
 
     // Defensive: ensure sizes is a valid array
     const validSizes = Array.isArray(sizes) ? sizes.filter(Boolean) : [];
 
     if (!validSizes.length) return null;
-
-    const handleSelect = (size: string) => {
-        setSelectedSize(size);
-        onSizeChange?.(size);
-    };
 
     return (
         <div className="space-y-3">
@@ -35,19 +38,19 @@ export function SizeSelector({ sizes, onSizeChange }: SizeSelectorProps) {
                 {validSizes.map((size) => (
                     <Button
                         key={size}
-                        variant={selectedSize === size ? 'default' : 'outline'}
+                        variant={activeSize === size ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handleSelect(size)}
-                        className={`min-w-[3rem] h-10 ${selectedSize === size ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                        aria-pressed={selectedSize === size}
+                        className={`min-w-[3rem] h-10 ${activeSize === size ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                        aria-pressed={activeSize === size}
                     >
                         {size}
                     </Button>
                 ))}
             </div>
-            {selectedSize && (
+            {activeSize && (
                 <p className="text-xs text-slate-500">
-                    Selected: <span className="font-medium text-slate-900">{selectedSize}</span>
+                    Selected: <span className="font-medium text-slate-900">{activeSize}</span>
                 </p>
             )}
         </div>

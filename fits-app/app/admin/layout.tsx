@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         try {
             await logoutUser();
             toast.success('Signed out successfully', {
-                description: 'You have been logged out of ManuFit Admin.',
+                description: 'You have been logged out of i-Drip Admin.',
                 duration: 3000,
             });
             console.log('✅ [LAYOUT] Logout complete → redirecting to login');
@@ -191,7 +191,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     >
                         <Menu size={20} />
                     </button>
-                    <h1 className="text-lg font-bold text-slate-900">ManuFit</h1>
+                    <h1 className="text-lg font-bold text-slate-900">i-Drip</h1>
                     <div className="w-10" /> {/* Spacer for alignment */}
                 </header>
 

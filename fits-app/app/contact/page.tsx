@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 
 // ✅ SEO Metadata (Server Components only)
 export const metadata = {
-    title: 'Contact Us | ManuFit',
-    description: 'Get in touch with ManuFit for custom apparel inquiries, quotes, and support.',
+    title: 'Contact Us | i-Drip',
+    description: 'Get in touch with i-Drip for custom apparel inquiries, quotes, and support.',
 };
 
 export default function ContactPage() {
@@ -49,9 +49,9 @@ export default function ContactPage() {
                                 0706 406 009
                             </a>
 
-                            <a href="mailto:hello@manufit.co.ke" className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors">
+                            <a href="mailto:hello@i-Drip.co.ke" className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors">
                                 <Mail className="h-5 w-5 text-blue-600" />
-                                hello@manufit.co.ke
+                                hello@i-Drip.co.ke
                             </a>
 
                             <div className="flex items-start gap-3 text-slate-600">

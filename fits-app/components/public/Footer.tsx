@@ -38,7 +38,7 @@ export function Footer() {
                             <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
                                 <Shirt className="h-5 w-5 text-white" />
                             </div>
-                            <span>ManuFit</span>
+                            <span>i-Drip</span>
                         </Link>
                         <p className="text-sm text-slate-600 max-w-sm">
                             Custom apparel, branded merchandise, and office décor for individuals and organizations across East Africa.
@@ -52,11 +52,11 @@ export function Footer() {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-slate-600">
                                 <Mail className="h-4 w-4" />
-                                <span>hello@manufit.co.ke</span>
+                                <span>hello@i-Drip.co.ke</span>
                             </div>
                             <div className="flex items-start gap-2 text-sm text-slate-600">
                                 <MapPin className="h-4 w-4 mt-0.5" />
-                                <span>{locations.join(' • ')}</span>
+                                <span>Ridge House, 2nd Flr. Nairobi</span>
                             </div>
                         </div>
                     </div>
@@ -105,7 +105,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-sm text-slate-500">
-                        © {new Date().getFullYear()} ManuFit. All rights reserved.
+                        © {new Date().getFullYear()} i-Drip. All rights reserved.
                     </p>
 
                     {/* Social Icons (placeholder) */}

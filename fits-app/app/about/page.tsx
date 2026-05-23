@@ -13,9 +13,9 @@ import { AboutCTA } from '@/components/public/about/AboutCTA';
 
 // ✅ SEO Metadata
 export const metadata = {
-    title: "About Us | ManuFit - Custom Apparel & Branded Merchandise",
-    description: 'Learn about ManuFit Kenya&apos; trusted partner for custom t-shirts, hoodies, and branded merchandise. Quality prints, fast turnaround, Kenya-wide delivery.',
-    keywords: ['about ManuFit', 'custom apparel Kenya', 'branded merchandise', 't-shirt printing Nairobi'],
+    title: "About Us | i-Drip - Custom Apparel & Branded Merchandise",
+    description: 'Learn about i-Dripenya&apos; trusted partner for custom t-shirts, hoodies, and branded merchandise. Quality prints, fast turnaround, Kenya-wide delivery.',
+    keywords: ['about i-Drip', 'custom apparel Kenya', 'branded merchandise', 't-shirt printing Nairobi'],
 };
 
 export default function AboutPage() {

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 // ✅ SEO Metadata (Server Components only)
 export const metadata = {
-    title: 'Checkout | ManuFit',
+    title: 'Checkout | i-Drip',
     description: 'Complete your order for custom apparel and branded merchandise. Secure checkout with M-Pesa or Cash on Delivery.',
     robots: 'noindex', // Prevent indexing of checkout pages
 };

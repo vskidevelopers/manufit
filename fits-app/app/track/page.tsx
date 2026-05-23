@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 
 // ✅ SEO Metadata (Server Components only)
 export const metadata = {
-    title: 'Track Order | ManuFit',
-    description: 'Track your ManuFit order status. Enter your order number and phone number to see real-time updates.',
+    title: 'Track Order | i-Drip',
+    description: 'Track your i-Drip order status. Enter your order number and phone number to see real-time updates.',
     robots: 'noindex', // Prevent indexing of tracking pages
 };
 

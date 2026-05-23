@@ -30,7 +30,7 @@ export function ShopHeader() {
                                 <h1 className="text-2xl md:text-5xl font-bold text-white tracking-tight leading-tight flex">
                                     Shop {' '}
                                     <span className="block text-transparent bg-clip-text bg-linear-to-r from-blue-300 via-purple-300 to-pink-300">
-                                        {" "} ManuFit Originals
+                                        {" "} i-Drip Originals
                                     </span>
                                 </h1>
 

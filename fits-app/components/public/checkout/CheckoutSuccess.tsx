@@ -84,7 +84,7 @@ export function CheckoutSuccess({ orderNumber }: CheckoutSuccessProps) {
 
                 {/* Support */}
                 <p className="text-xs text-slate-500 pt-4 border-t">
-                    Need help? Contact us at 0706 406 009 or hello@manufit.co.ke
+                    Need help? Contact us at 0706 406 009 or hello@i-Drip.co.ke
                 </p>
             </div>
         </div>

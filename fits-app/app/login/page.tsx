@@ -93,7 +93,7 @@ export default function LoginPage() {
                     <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 shadow-sm">
                         <Shirt size={26} className="stroke-[1.5]" />
                     </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">ManuFit Admin</CardTitle>
+                    <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">i-Drip Admin</CardTitle>
                     <CardDescription className="text-slate-500">Sign in to manage your store</CardDescription>
                 </CardHeader>
 
@@ -111,7 +111,7 @@ export default function LoginPage() {
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="admin@manufit.com"
+                                placeholder="admin@i-Drip.com"
                                 value={email}
                                 onChange={(e) => { setEmail(e.target.value); if (error) setError(''); }}
                                 required

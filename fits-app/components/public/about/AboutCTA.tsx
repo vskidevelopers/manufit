@@ -39,9 +39,9 @@ export function AboutCTA() {
                             <Phone className="h-4 w-4" />
                             0706 406 009
                         </a>
-                        <a href="mailto:hello@manufit.co.ke" className="flex items-center gap-2 hover:text-white transition-colors">
+                        <a href="mailto:hello@i-Drip.co.ke" className="flex items-center gap-2 hover:text-white transition-colors">
                             <Mail className="h-4 w-4" />
-                            hello@manufit.co.ke
+                            hello@i-Drip.co.ke
                         </a>
                     </div>
                 </div>
