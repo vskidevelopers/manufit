@@ -4,6 +4,7 @@
 import { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
+import { SafeDescription } from './SafeDescription';
 
 interface ProductInfoProps {
     product: Product;
@@ -58,7 +59,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             {/* Description */}
             {product.description && (
                 <div className="prose prose-sm text-slate-600 leading-relaxed">
-                    <p>{product.description}</p>
+                    <SafeDescription html={product.description} className="mt-4" />
                 </div>
             )}
 

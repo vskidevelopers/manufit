@@ -1,3 +1,4 @@
+// app/admin/products/new/page.tsx (or your NewProductPage component)
 'use client';
 
 import { useState } from 'react';
@@ -9,13 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
-
-
-// Install textarea if you haven't: npx shadcn@latest add textarea
+import { RichTextEditor } from '@/components/ui/RichTextEditor'; // ✅ Import new component
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -24,10 +22,9 @@ export default function NewProductPage() {
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [error, setError] = useState('');
 
-    // Form State
     const [formData, setFormData] = useState({
         name: '',
-        description: '',
+        description: '', // ✅ Now stores HTML string
         category: 't-shirt',
         basePrice: '',
         sizes: '',
@@ -36,24 +33,19 @@ export default function NewProductPage() {
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
-
         setUploadingImage(true);
         const file = e.target.files[0];
         const form = new FormData();
         form.append('file', file);
-
         const result = await uploadImageAction(form);
-        console.log('☁️ [CLIENT] Image upload result:', result);
         if ('url' in result) {
-            // TypeScript now knows result is { url: string }
             toast.success("Image uploaded successfully!");
             setImageUrls((prev) => [...prev, result.url]);
         } else {
-            // TypeScript now knows result is { error: string }
             toast.error(result.error || "Upload failed");
         }
         setUploadingImage(false);
-        e.target.value = ''; // Reset input
+        e.target.value = '';
     };
 
     const removeImage = (index: number) => {
@@ -73,8 +65,8 @@ export default function NewProductPage() {
 
         const productData = {
             name: formData.name,
-            description: formData.description,
-            category: formData.category as any,
+            description: formData.description, // ✅ HTML string saved to Firestore
+            category: formData.category,
             basePrice: parseFloat(formData.basePrice),
             images: imageUrls,
             availableSizes: formData.sizes.split(',').map(s => s.trim()).filter(Boolean),
@@ -83,9 +75,8 @@ export default function NewProductPage() {
         };
 
         const result = await createProductAction(productData);
-        console.log('🛍️ [CLIENT] Create product result:', result);
-
         if (result.success) {
+            toast.success('Product created!');
             router.push('/admin/products');
         } else {
             setError('Failed to save product.');
@@ -139,51 +130,42 @@ export default function NewProductPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            {/* Image Upload */}
-                            <div className="space-y-2">
-                                <Label>Product Images</Label>
-                                <div className="flex items-center gap-4">
-                                    <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-md text-sm font-medium transition-colors">
-                                        <Upload size={16} />
-                                        <span>{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
-                                        <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
-                                    </label>
-                                </div>
-
-                                {/* Image Previews */}
-                                {imageUrls.length > 0 && (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                                        {imageUrls.map((url, idx) => (
-                                            <div key={idx} className="relative group aspect-square bg-gray-100 rounded-md overflow-hidden border">
-                                                <img src={url} alt="Preview" className="w-full h-full object-cover" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImage(idx)}
-                                                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
                         </div>
 
-                        {/* Description */}
+                        {/* Image Upload */}
+                        <div className="space-y-2">
+                            <Label>Product Images</Label>
+                            <div className="flex items-center gap-4">
+                                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-md text-sm font-medium transition-colors">
+                                    <Upload size={16} />
+                                    <span>{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
+                                </label>
+                            </div>
+                            {imageUrls.length > 0 && (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                    {imageUrls.map((url, idx) => (
+                                        <div key={idx} className="relative group aspect-square bg-gray-100 rounded-md overflow-hidden border">
+                                            <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                                            <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ✅ Rich Text Description */}
                         <div className="space-y-2">
                             <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                placeholder="Describe the product material, fit, etc."
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={4}
+                            <RichTextEditor
+                                content={formData.description}
+                                onChange={(html) => setFormData({ ...formData, description: html })}
+                                placeholder="Describe the product material, fit, care instructions, etc. Use bold, lists, or links as needed."
                             />
+                            <p className="text-xs text-slate-500">Supports bold, italic, lists, links, and images.</p>
                         </div>
-
-
 
                         {/* Price */}
                         <div className="space-y-2">
@@ -219,8 +201,6 @@ export default function NewProductPage() {
                                 />
                             </div>
                         </div>
-
-
 
                         <div className="pt-4">
                             <Button type="submit" className="w-full" disabled={loading || uploadingImage}>
