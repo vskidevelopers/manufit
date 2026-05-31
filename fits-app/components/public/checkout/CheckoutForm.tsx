@@ -13,26 +13,33 @@ interface CheckoutFormProps {
     onSubmit: (data: {
         customerName: string;
         customerPhone: string;
+        deliveryRegion: 'nairobi' | 'others';
         customerLocation: string;
-        paymentMethod: 'mpesa' | 'cod';
+        wantsDelivery: boolean;
+        paymentMethod: 'mpesa' | 'pay_later';
         mpesaCode?: string;
     }) => Promise<void>;
     isLoading: boolean;
     totalPrice: number;
-    deliveryFee: number;
+    deliveryFee?: number;
 }
 
-export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: CheckoutFormProps) {
+export function CheckoutForm({ onSubmit, isLoading, totalPrice }: CheckoutFormProps) {
     const [formData, setFormData] = useState({
         customerName: '',
         customerPhone: '',
+        deliveryRegion: '' as 'nairobi' | 'others',
         customerLocation: '',
-        paymentMethod: 'cod' as 'mpesa' | 'cod',
+        wantsDelivery: false,
+        paymentMethod: 'pay_later' as 'mpesa' | 'pay_later',
         mpesaCode: '',
     });
-    const grandTotal = totalPrice + deliveryFee;
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Calculate grand total based on delivery opt-in
+    const deliveryFee = formData.wantsDelivery ? 300 : 0;
+    const grandTotal = totalPrice + deliveryFee;
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
@@ -47,11 +54,14 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
             newErrors.customerPhone = 'Enter a valid Kenyan phone number';
         }
 
-        if (!formData.customerLocation) {
-            newErrors.customerLocation = 'Please select a location';
+        if (!formData.deliveryRegion) {
+            newErrors.deliveryRegion = 'Please select your region';
+        } else if (formData.deliveryRegion === 'nairobi' && !formData.customerLocation) {
+            newErrors.customerLocation = 'Please select your area';
+        } else if (formData.deliveryRegion === 'others' && !formData.customerLocation.trim()) {
+            newErrors.customerLocation = 'Please enter your location';
         }
 
-        // M-Pesa code required only if M-Pesa selected
         if (formData.paymentMethod === 'mpesa' && !formData.mpesaCode.trim()) {
             newErrors.mpesaCode = 'M-Pesa transaction code is required';
         } else if (formData.paymentMethod === 'mpesa' && formData.mpesaCode.length < 6) {
@@ -89,7 +99,7 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
 
             {/* Section Header */}
             <div>
-                <h2 className="text-lg font-semibold text-slate-900">Contact Information</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Contact & Delivery Details</h2>
                 <p className="text-sm text-slate-500 mt-1">We&apos;ll use this to confirm your order</p>
             </div>
 
@@ -105,9 +115,7 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
                     className={errors.customerName ? 'border-red-500 focus:ring-red-500' : ''}
                     disabled={isLoading}
                 />
-                {errors.customerName && (
-                    <p className="text-xs text-red-600">{errors.customerName}</p>
-                )}
+                {errors.customerName && <p className="text-xs text-red-600">{errors.customerName}</p>}
             </div>
 
             {/* Phone Field */}
@@ -122,20 +130,22 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
                     className={errors.customerPhone ? 'border-red-500 focus:ring-red-500' : ''}
                     disabled={isLoading}
                 />
-                {errors.customerPhone && (
-                    <p className="text-xs text-red-600">{errors.customerPhone}</p>
-                )}
+                {errors.customerPhone && <p className="text-xs text-red-600">{errors.customerPhone}</p>}
                 <p className="text-xs text-slate-500">We&apos;ll send order updates via SMS/WhatsApp</p>
             </div>
 
-            {/* Location Field */}
+            {/* Location & Delivery Section */}
             <div className="space-y-2">
-                <Label>Delivery Location *</Label>
+                <Label>Delivery Details *</Label>
                 <LocationSelector
-                    value={formData.customerLocation}
-                    onChange={(value) => handleChange('customerLocation', value)}
+                    region={formData.deliveryRegion}
+                    location={formData.customerLocation}
+                    wantsDelivery={formData.wantsDelivery}
+                    onRegionChange={(region) => handleChange('deliveryRegion', region)}
+                    onLocationChange={(location) => handleChange('customerLocation', location)}
+                    onDeliveryToggle={(wants) => setFormData(prev => ({ ...prev, wantsDelivery: wants }))}
                     disabled={isLoading}
-                    error={errors.customerLocation}
+                    error={errors.deliveryRegion || errors.customerLocation}
                 />
             </div>
 
@@ -147,10 +157,10 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
                     mpesaCode={formData.mpesaCode}
                     onMethodChange={(value) => handleChange('paymentMethod', value)}
                     onCodeChange={(code) => handleChange('mpesaCode', code)}
-                    disabled={isLoading} grandTotal={grandTotal} />
-                {errors.mpesaCode && (
-                    <p className="text-xs text-red-600 -mt-2">{errors.mpesaCode}</p>
-                )}
+                    disabled={isLoading}
+                    grandTotal={grandTotal}
+                />
+                {errors.mpesaCode && <p className="text-xs text-red-600 -mt-2">{errors.mpesaCode}</p>}
             </div>
 
             {/* Submit Button */}
@@ -165,15 +175,9 @@ export function CheckoutForm({ onSubmit, isLoading, totalPrice, deliveryFee }: C
 
             {/* Trust Badges */}
             <div className="flex items-center justify-center gap-4 text-xs text-slate-500 pt-2">
-                <span className="flex items-center gap-1">
-                    🔒 Secure Checkout
-                </span>
-                <span className="flex items-center gap-1">
-                    ✅ Order Confirmation
-                </span>
-                <span className="flex items-center gap-1">
-                    📱 M-Pesa Verified
-                </span>
+                <span className="flex items-center gap-1">🔒 Secure Checkout</span>
+                <span className="flex items-center gap-1">✅ Order Confirmation</span>
+                <span className="flex items-center gap-1">📱 M-Pesa Verified</span>
             </div>
         </form>
     );

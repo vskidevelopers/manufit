@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Package, Truck, Copy } from 'lucide-react';
+import { CheckCircle, Package, Truck, Copy, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -15,6 +15,11 @@ export function CheckoutSuccess({ orderNumber }: CheckoutSuccessProps) {
         await navigator.clipboard.writeText(orderNumber);
         toast.success('Order number copied!', { description: orderNumber });
     };
+
+    // ✅ WhatsApp link with pre-filled message
+    const whatsappNumber = '+254799336502'; // Your business WhatsApp (international format, no +)
+    const whatsappMessage = `Hello iDRIP, I just placed order *${orderNumber}*. Please confirm my order details and delivery timeline. Thank you!`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -29,7 +34,7 @@ export function CheckoutSuccess({ orderNumber }: CheckoutSuccessProps) {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">Order Placed!</h1>
                     <p className="text-slate-600 mt-2">
-                        Thank you for your order. We&apos;ll confirm via SMS/WhatsApp shortly.
+                        Thank you for your order. We&apos;ll confirm via WhatsApp shortly.
                     </p>
                 </div>
 
@@ -50,8 +55,19 @@ export function CheckoutSuccess({ orderNumber }: CheckoutSuccessProps) {
                     </div>
                 </div>
 
+                {/* ✅ WhatsApp CTA - Primary Action */}
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <Button className="w-full h-12 text-base bg-green-600 hover:bg-green-700 gap-2">
+                        <MessageCircle className="h-5 w-5" />
+                        Chat on WhatsApp to Confirm
+                    </Button>
+                </a>
+                <p className="text-xs text-slate-500 -mt-2">
+                    Pre-filled with your order number • We typically respond within 15 mins
+                </p>
+
                 {/* Next Steps */}
-                <div className="space-y-3 text-left">
+                <div className="space-y-3 text-left pt-2">
                     <div className="flex items-start gap-3">
                         <Package className="h-5 w-5 text-blue-600 mt-0.5" />
                         <div>
@@ -71,12 +87,12 @@ export function CheckoutSuccess({ orderNumber }: CheckoutSuccessProps) {
                 {/* Actions */}
                 <div className="space-y-3 pt-4">
                     <Link href="/track" className="block">
-                        <Button className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700">
+                        <Button variant="outline" className="w-full h-12 text-base">
                             Track Your Order
                         </Button>
                     </Link>
                     <Link href="/shop">
-                        <Button variant="outline" className="w-full">
+                        <Button variant="ghost" className="w-full">
                             Continue Shopping
                         </Button>
                     </Link>

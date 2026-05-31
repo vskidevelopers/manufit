@@ -4,7 +4,7 @@
 import { useCart } from '@/lib/CartContext';
 import { CheckoutForm } from './CheckoutForm';
 import { OrderReview } from './OrderReview';
-import { CheckoutSummary } from './CheckoutSummary';
+import { CheckoutSummary } from './CheckoutSummary'; // Updated component
 import { CheckoutSuccess } from './CheckoutSuccess';
 import { createOrderAction } from '@/actions/order-actions';
 import { toast } from 'sonner';
@@ -16,10 +16,15 @@ export function CheckoutContent() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderNumber, setOrderNumber] = useState<string | null>(null);
-    const [deliveryFee, setDeliveryFee] = useState(0);
 
+    // ✅ NEW: Track delivery context from form
+    const [deliveryContext, setDeliveryContext] = useState({
+        region: '' as 'nairobi' | 'others',
+        location: '',
+        wantsDelivery: false,
+    });
 
-    // ✅ NEW: Clear cart AFTER success state is rendered (not during render)
+    // ✅ Clear cart AFTER success state is rendered
     useEffect(() => {
         if (orderNumber) {
             console.log('🧹 [CHECKOUT] Clearing cart after successful order');
@@ -30,11 +35,27 @@ export function CheckoutContent() {
     const handleSubmit = async (formData: {
         customerName: string;
         customerPhone: string;
+        deliveryRegion: 'nairobi' | 'others';
         customerLocation: string;
-        paymentMethod: 'mpesa' | 'cod';
+        wantsDelivery: boolean;
+        paymentMethod: 'mpesa' | 'pay_later';
+        mpesaCode?: string;
     }) => {
         setIsSubmitting(true);
-        console.log('🛒 [CHECKOUT] Submitting order:', { ...formData, items, totalPrice, deliveryFee });
+
+        // Save delivery context for summary display
+        setDeliveryContext({
+            region: formData.deliveryRegion,
+            location: formData.customerLocation,
+            wantsDelivery: formData.wantsDelivery,
+        });
+
+        console.log('🛒 [CHECKOUT] Submitting order:', {
+            ...formData,
+            items,
+            totalPrice,
+            deliveryFee: formData.wantsDelivery ? 300 : 0
+        });
 
         try {
             // Prepare order data for server action
@@ -42,7 +63,10 @@ export function CheckoutContent() {
                 customerName: formData.customerName.trim(),
                 customerPhone: formData.customerPhone.trim(),
                 customerLocation: formData.customerLocation,
+                deliveryRegion: formData.deliveryRegion,
+                wantsDelivery: formData.wantsDelivery,
                 paymentMethod: formData.paymentMethod,
+                mpesaCode: formData.paymentMethod === 'mpesa' ? formData.mpesaCode?.trim() : undefined,
                 items: items.map((item) => ({
                     productId: item.productId,
                     productName: item.productName,
@@ -51,9 +75,9 @@ export function CheckoutContent() {
                     color: item.color,
                     priceAtPurchase: item.unitPrice,
                 })),
-                totalAmount: totalPrice + deliveryFee,
+                totalAmount: totalPrice + (formData.wantsDelivery ? 300 : 0),
                 currency: 'KSh',
-                deliveryFee: deliveryFee > 0 ? deliveryFee : undefined,
+                deliveryFee: formData.wantsDelivery ? 300 : undefined,
             };
 
             // Create order via server action
@@ -91,7 +115,7 @@ export function CheckoutContent() {
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Page Header */}
-            <header className="bg-linear-to-br from-slate-900 to-blue-900 py-4 md:py-5">
+            <header className="bg-gradient-to-br from-slate-900 to-blue-900 py-4 md:py-5">
                 <div className="container px-4">
                     <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                         Checkout
@@ -108,8 +132,18 @@ export function CheckoutContent() {
 
                     {/* Left: Form + Review */}
                     <div className="lg:col-span-2 space-y-6">
-                        <CheckoutForm onSubmit={handleSubmit} isLoading={isSubmitting} totalPrice={totalPrice} deliveryFee={deliveryFee} />
-                        <OrderReview items={items} totalPrice={totalPrice} deliveryFee={deliveryFee} />
+                        <CheckoutForm
+                            onSubmit={handleSubmit}
+                            isLoading={isSubmitting}
+                            totalPrice={totalPrice}
+                        />
+                        <OrderReview
+                            items={items}
+                            totalPrice={totalPrice}
+                            deliveryFee={deliveryContext.wantsDelivery ? 300 : 0}
+                            deliveryRegion={deliveryContext.region}
+                            customerLocation={deliveryContext.location}
+                        />
                     </div>
 
                     {/* Right: Sticky Summary */}
@@ -118,7 +152,9 @@ export function CheckoutContent() {
                             <CheckoutSummary
                                 items={items}
                                 totalPrice={totalPrice}
-                                onDeliveryChange={setDeliveryFee}
+                                deliveryRegion={deliveryContext.region}
+                                customerLocation={deliveryContext.location}
+                                wantsDelivery={deliveryContext.wantsDelivery}
                             />
                         </div>
                     </div>

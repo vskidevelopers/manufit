@@ -1,34 +1,69 @@
-
+// components/public/checkout/CheckoutSummary.tsx
 'use client';
 
-import { useState } from 'react';
 import { CartItem } from '@/lib/CartContext';
-
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Truck, MapPin, Lock } from 'lucide-react';
-
-const DELIVERY_FEE = 300;
+import { Truck, MapPin, Phone, Package } from 'lucide-react';
+import Link from 'next/link';
 
 interface CheckoutSummaryProps {
     items: CartItem[];
     totalPrice: number;
-    onDeliveryChange: (fee: number) => void;
+    // New props for delivery context
+    deliveryRegion?: 'nairobi' | 'others';
+    customerLocation?: string;
+    wantsDelivery?: boolean;
 }
 
-export function CheckoutSummary({ items, totalPrice, onDeliveryChange }: CheckoutSummaryProps) {
-    const [includeDelivery, setIncludeDelivery] = useState(false);
+export function CheckoutSummary({
+    items,
+    totalPrice,
+    deliveryRegion,
+    customerLocation,
+    wantsDelivery
+}: CheckoutSummaryProps) {
 
     const formatPrice = (amount: number) => `KSh ${amount.toLocaleString()}`;
 
-    const deliveryCost = includeDelivery ? DELIVERY_FEE : 0;
-    const grandTotal = totalPrice + deliveryCost;
+    // Calculate delivery fee based on user choices
+    const deliveryFee = (deliveryRegion === 'nairobi' && wantsDelivery) ? 300 : 0;
+    const grandTotal = totalPrice + deliveryFee;
 
-    // Sync with parent when delivery toggles
-    const handleDeliveryToggle = (checked: boolean) => {
-        setIncludeDelivery(checked);
-        onDeliveryChange(checked ? DELIVERY_FEE : 0);
+    // Determine delivery status text
+    const getDeliveryStatus = () => {
+        if (deliveryRegion === 'nairobi' && wantsDelivery) {
+            return {
+                icon: <Truck className="h-4 w-4 text-green-600" />,
+                label: `Delivery to ${customerLocation}`,
+                fee: formatPrice(300),
+                color: 'text-green-600'
+            };
+        } else if (deliveryRegion === 'nairobi' && !wantsDelivery) {
+            return {
+                icon: <Package className="h-4 w-4 text-blue-600" />,
+                label: `Pickup / Self-collection`,
+                fee: 'Free',
+                color: 'text-blue-600'
+            };
+        } else if (deliveryRegion === 'others') {
+            return {
+                icon: <Phone className="h-4 w-4 text-blue-600" />,
+                label: `Delivery to ${customerLocation || 'your area'}`,
+                fee: 'Confirmed via call',
+                color: 'text-blue-600'
+            };
+        }
+        // Default fallback
+        return {
+            icon: <Truck className="h-4 w-4 text-slate-400" />,
+            label: 'Delivery',
+            fee: 'TBD',
+            color: 'text-slate-400'
+        };
     };
+
+    const deliveryStatus = getDeliveryStatus();
 
     return (
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
@@ -45,34 +80,15 @@ export function CheckoutSummary({ items, totalPrice, onDeliveryChange }: Checkou
                     <span className="font-medium">{formatPrice(totalPrice)}</span>
                 </div>
 
-                {/* Delivery Option */}
-                <div className="space-y-2">
-                    <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                        <Checkbox
-                            id="checkout-delivery"
-                            checked={includeDelivery}
-                            onCheckedChange={(checked) => handleDeliveryToggle(checked as boolean)}
-                            className="mt-0.5"
-                        />
-                        <label htmlFor="checkout-delivery" className="flex-1 cursor-pointer">
-                            <div className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
-                                <Truck className="h-4 w-4 text-blue-600" />
-                                Add Delivery (KSh 300)
-                            </div>
-                            <p className="text-xs text-slate-500 mt-1">
-                                <MapPin className="h-3 w-3 inline mr-1" />
-                                Kenya-wide delivery via trusted partners
-                            </p>
-                        </label>
-                    </div>
-
-                    {/* Delivery Cost Display */}
-                    <div className="flex justify-between text-sm pl-1">
-                        <span className="text-slate-600">Delivery Fee</span>
-                        <span className={`font-medium transition-colors ${includeDelivery ? 'text-slate-900' : 'text-slate-400'}`}>
-                            {includeDelivery ? formatPrice(DELIVERY_FEE) : 'Not selected'}
-                        </span>
-                    </div>
+                {/* Delivery Row - Dynamic based on user choices */}
+                <div className="flex justify-between text-sm">
+                    <span className="text-slate-600 flex items-center gap-1.5">
+                        {deliveryStatus.icon}
+                        {deliveryStatus.label}
+                    </span>
+                    <span className={`font-medium ${deliveryStatus.color}`}>
+                        {deliveryStatus.fee}
+                    </span>
                 </div>
 
                 <Separator />
@@ -84,17 +100,59 @@ export function CheckoutSummary({ items, totalPrice, onDeliveryChange }: Checkou
                 </div>
             </div>
 
+            {/* Contextual Info Box */}
+            {deliveryRegion === 'others' && (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-800 space-y-1">
+                    <p className="font-medium flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        Next Steps:
+                    </p>
+                    <ol className="list-decimal list-inside space-y-0.5">
+                        <li>Place your order now</li>
+                        <li>We&apos;ll call to confirm courier fee</li>
+                        <li>You approve before we dispatch</li>
+                    </ol>
+                </div>
+            )}
+
+            {deliveryRegion === 'nairobi' && !wantsDelivery && (
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600">
+                    <p className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        You&apos;ll collect your order from our Nairobi hub. We&apos;ll WhatsApp you when it&apos;s ready.
+                    </p>
+                </div>
+            )}
+
             {/* Trust Badges */}
-            <div className="space-y-2 text-xs text-slate-500">
+            <div className="space-y-2 text-xs text-slate-500 pt-2">
                 <div className="flex items-center gap-2">
-                    <Lock className="h-3 w-3 text-green-600" />
-                    <span>Secure checkout with M-Pesa or Cash on Delivery</span>
+                    <span>🔒</span>
+                    <span>Secure checkout with M-Pesa or Pay Later</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Truck className="h-3 w-3 text-blue-600" />
-                    <span>{includeDelivery ? 'Delivery included in total' : 'Add delivery at checkout'}</span>
+                    <span>✅</span>
+                    <span>Order confirmation via SMS/WhatsApp</span>
                 </div>
             </div>
+
+            {/* Checkout CTA */}
+            <Link href="/checkout" className="block">
+                <Button
+                    className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700"
+                    size="lg"
+                    disabled={items.length === 0}
+                >
+                    Place Order
+                </Button>
+            </Link>
+
+            {/* Continue Shopping */}
+            <Link href="/shop">
+                <Button variant="outline" className="w-full">
+                    Continue Shopping
+                </Button>
+            </Link>
         </div>
     );
 }

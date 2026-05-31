@@ -4,12 +4,13 @@
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
 
-type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
 
 interface Props {
-    status: OrderStatus;
+    status?: OrderStatus;  // ✅ Make optional
     className?: string;
     showIcon?: boolean;
+    size?: string
 }
 
 const CONFIG: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
@@ -19,7 +20,8 @@ const CONFIG: Record<OrderStatus, { label: string; className: string; icon: Reac
     cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 hover:bg-red-200', icon: XCircle },
 };
 
-export function OrderStatusBadge({ status, className = '', showIcon = true }: Props) {
+export function OrderStatusBadge({ status = 'pending', className = '', showIcon = true }: Props) {
+    // ✅ Default to 'pending' if undefined
     const config = CONFIG[status];
     const Icon = config.icon;
 

@@ -21,7 +21,7 @@ export interface Product {
 
 export type OrderStatus = "pending" | "processing" | "completed" | "cancelled";
 
-export type PaymentMethod = "mpesa" | "cod"; // Cash on Delivery
+export type PaymentMethod = "mpesa" | "pay_later"; // Cash on Delivery
 
 export interface OrderItem {
   productId: string;
@@ -43,7 +43,6 @@ export interface OrderNote {
 
 export interface Order {
   id?: string; // Firestore document ID
-
   // Required core fields (should always exist for a valid order)
   orderNumber?: string; // e.g., MF-240413-001
   customerName?: string;

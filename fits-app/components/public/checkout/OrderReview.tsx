@@ -1,18 +1,63 @@
-
+// components/public/checkout/OrderReview.tsx
 'use client';
 
 import { CartItem } from '@/lib/CartContext';
 import { Separator } from '@/components/ui/separator';
+import { Truck, Package, Phone } from 'lucide-react';
 
 interface OrderReviewProps {
     items: CartItem[];
     totalPrice: number;
     deliveryFee: number;
+    deliveryRegion?: 'nairobi' | 'others';
+    customerLocation?: string;
+    wantsDelivery?: boolean;
 }
 
-export function OrderReview({ items, totalPrice, deliveryFee }: OrderReviewProps) {
+export function OrderReview({
+    items,
+    totalPrice,
+    deliveryFee,
+    deliveryRegion,
+    customerLocation,
+    wantsDelivery
+}: OrderReviewProps) {
+
     const formatPrice = (amount: number) => `KSh ${amount.toLocaleString()}`;
     const grandTotal = totalPrice + deliveryFee;
+
+    // Determine delivery display based on user choices
+    const getDeliveryDisplay = () => {
+        if (deliveryRegion === 'nairobi' && wantsDelivery) {
+            return {
+                icon: <Truck className="h-3 w-3 text-green-600" />,
+                label: `Delivery to ${customerLocation}`,
+                fee: formatPrice(300),
+                color: 'text-green-600',
+                show: true
+            };
+        } else if (deliveryRegion === 'nairobi' && !wantsDelivery) {
+            return {
+                icon: <Package className="h-3 w-3 text-blue-600" />,
+                label: `Pickup / Self-collection`,
+                fee: 'Free',
+                color: 'text-blue-600',
+                show: true
+            };
+        } else if (deliveryRegion === 'others') {
+            return {
+                icon: <Phone className="h-3 w-3 text-blue-600" />,
+                label: `Delivery to ${customerLocation || 'your area'}`,
+                fee: 'Confirmed via call',
+                color: 'text-blue-600',
+                show: true
+            };
+        }
+        // Fallback: no delivery info yet
+        return { show: false };
+    };
+
+    const deliveryDisplay = getDeliveryDisplay();
 
     return (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -63,22 +108,59 @@ export function OrderReview({ items, totalPrice, deliveryFee }: OrderReviewProps
 
             {/* Totals */}
             <div className="space-y-2 text-sm">
+
+                {/* Subtotal */}
                 <div className="flex justify-between">
                     <span className="text-slate-600">Subtotal</span>
                     <span className="font-medium">{formatPrice(totalPrice)}</span>
                 </div>
-                {deliveryFee > 0 && (
+
+                {/* Dynamic Delivery Row */}
+                {deliveryDisplay.show && (
                     <div className="flex justify-between">
-                        <span className="text-slate-600">Delivery</span>
-                        <span className="font-medium">{formatPrice(deliveryFee)}</span>
+                        <span className="text-slate-600 flex items-center gap-1.5">
+                            {deliveryDisplay.icon}
+                            {deliveryDisplay.label}
+                        </span>
+                        <span className={`font-medium ${deliveryDisplay.color}`}>
+                            {deliveryDisplay.fee}
+                        </span>
                     </div>
                 )}
+
                 <Separator />
+
+                {/* Grand Total */}
                 <div className="flex justify-between text-base font-bold">
                     <span>Total</span>
                     <span className="text-blue-600">{formatPrice(grandTotal)}</span>
                 </div>
             </div>
+
+            {/* Contextual Note for Upcountry */}
+            {deliveryRegion === 'others' && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-800">
+                    <p className="flex items-start gap-1.5">
+                        <Phone className="h-3 w-3 mt-0.5 shrink-0" />
+                        <span>
+                            <strong>Next steps:</strong> We&apos;ll call to confirm the courier fee for {customerLocation}.
+                            You approve before we dispatch.
+                        </span>
+                    </p>
+                </div>
+            )}
+
+            {/* Contextual Note for Pickup */}
+            {deliveryRegion === 'nairobi' && !wantsDelivery && (
+                <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600">
+                    <p className="flex items-start gap-1.5">
+                        <Package className="h-3 w-3 mt-0.5 shrink-0" />
+                        <span>
+                            You&apos;ll collect your order from our Nairobi hub. We&apos;ll WhatsApp you when it&apos;s ready for pickup.
+                        </span>
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

@@ -4,9 +4,9 @@
 
 // ✅ Import adminDb for admin operations (server-only)
 import { adminDb } from "@/lib/firebase-admin";
+import { Timestamp } from "firebase-admin/firestore";
 
 // ✅ Import client db for public operations (checkout, tracking)
-import { db } from "@/lib/firebase";
 
 // ✅ Import revalidatePath for cache invalidation
 import { revalidatePath } from "next/cache";
@@ -14,14 +14,34 @@ import { revalidatePath } from "next/cache";
 // ✅ Import types
 import { Order, OrderStatus } from "@/lib/types";
 
-// ✅ Import client-side helpers for public actions
-import {
-  getCollectionInDb,
-  getDocById,
-  createDoc,
-  updateDocById,
-  deleteDocById,
-} from "@/lib/firebase";
+// ✅ Helper: Normalize Firestore order doc to plain, serializable Order object
+const normalizeOrder = (id: string, data: any): Order => ({
+  id,
+  orderNumber: data.orderNumber,
+  customerName: data.customerName,
+  customerPhone: data.customerPhone,
+  customerLocation: data.customerLocation,
+  deliveryRegion: data.deliveryRegion,
+  wantsDelivery: data.wantsDelivery,
+  paymentMethod: data.paymentMethod,
+  mpesaCode: data.mpesaCode,
+  items:
+    data.items?.map((item: any) => ({
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      size: item.size,
+      color: item.color,
+      priceAtPurchase: item.priceAtPurchase,
+    })) || [],
+  totalAmount: data.totalAmount || 0,
+  currency: data.currency || "KSh",
+  deliveryFee: data.deliveryFee,
+  status: (data.status as OrderStatus) || "pending",
+  // ✅ Serialize ALL timestamp fields to ISO strings
+  createdAt: serializeTimestamp(data.createdAt),
+  updatedAt: serializeTimestamp(data.updatedAt),
+});
 
 // ✅ Helper: Serialize Timestamp to ISO string (for client props)
 const serializeTimestamp = (ts: any): string | null => {
@@ -39,49 +59,90 @@ function generateOrderNumber(): string {
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   const seq = Math.floor(100 + Math.random() * 900);
-  return `MF-${yy}${mm}${dd}-${seq}`;
+  return `IDRP-${yy}${mm}${dd}-${seq}`;
 }
 
 // ============================================================================
 // 🛒 PUBLIC ACTIONS (Anonymous Checkout) - Use Client DB + Rules
 // ============================================================================
-
 // --- CREATE ORDER (Public Checkout) ---
-export async function createOrderAction(orderData: Partial<Order>) {
-  console.log("👔 [ACTION] Create Order Workflow Started (Public)");
+export async function createOrderAction(orderData: {
+  customerName: string;
+  customerPhone: string;
+  customerLocation: string;
+  deliveryRegion?: "nairobi" | "others";
+  wantsDelivery?: boolean;
+  paymentMethod: "mpesa" | "pay_later";
+  mpesaCode?: string;
+  items: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    size?: string;
+    color?: string;
+    priceAtPurchase: number;
+  }>;
+  totalAmount: number;
+  currency?: string;
+  deliveryFee?: number;
+}) {
+  console.log("👔 [ACTION] Create Order Workflow Started");
 
-  const orderNumber = generateOrderNumber();
-  console.log("🔢 [ACTION] Generated:", orderNumber);
+  try {
+    const orderNumber = generateOrderNumber();
+    console.log("🔢 [ACTION] Generated:", orderNumber);
 
-  const payload = {
-    ...orderData,
-    orderNumber,
-    status: "pending",
-    currency: orderData.currency || "KSh",
-    createdAt: new Date().toISOString(),
-  };
+    // ✅ Use adminDb for reliable server-side write
+    const ordersRef = adminDb.collection("orders");
 
-  // ✅ Use client db + Firestore rules (allow create: if true)
-  const result = await createDoc("orders", payload);
+    const payload = {
+      orderNumber,
+      customerName: orderData.customerName.trim(),
+      customerPhone: orderData.customerPhone.trim(),
+      customerLocation: orderData.customerLocation,
+      deliveryRegion: orderData.deliveryRegion || null,
+      wantsDelivery: orderData.wantsDelivery || false,
+      paymentMethod: orderData.paymentMethod,
+      mpesaCode:
+        orderData.paymentMethod === "mpesa"
+          ? orderData.mpesaCode?.trim()
+          : null,
+      items: orderData.items,
+      totalAmount: orderData.totalAmount,
+      currency: orderData.currency || "KSh",
+      deliveryFee: orderData.deliveryFee || null,
+      status: "pending",
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    };
 
-  if (!result.success) {
-    console.error("👔 [ACTION] Workflow Failed");
-    return { success: false, error: "Failed to create order" };
+    const docRef = await ordersRef.add(payload);
+
+    console.log("✅ [ACTION] Order created:", docRef.id);
+
+    // Revalidate admin paths for real-time dashboard updates
+    revalidatePath("/admin/orders");
+
+    return {
+      success: true,
+      id: docRef.id,
+      orderNumber,
+    };
+  } catch (error) {
+    console.error("❌ [ACTION] Order creation failed:", error);
+    return {
+      success: false,
+      error: "Failed to create order. Please try again or contact support.",
+    };
   }
-
-  // Revalidate admin paths (admin uses adminDb, but cache still needs invalidation)
-  revalidatePath("/admin/orders");
-  console.log("🔄 [ACTION] Path Revalidated. Workflow Complete.");
-
-  return { success: true, id: result.id, orderNumber };
 }
 
-// --- TRACK ORDER (Public) - Uses adminDb for rule bypass + server validation ---
+// --- TRACK ORDER (Public) ---
 export const trackOrderAction = async (orderNumber: string, phone: string) => {
   console.log(`🔍 [ACTION] Track order: ${orderNumber} + ${phone}`);
 
   try {
-    // ✅ Use adminDb to bypass rules (public users can't query directly)
+    // ✅ Use adminDb to bypass rules
     const ordersRef = adminDb.collection("orders");
     const query = ordersRef
       .where("orderNumber", "==", orderNumber)
@@ -94,22 +155,17 @@ export const trackOrderAction = async (orderNumber: string, phone: string) => {
       return { success: false, error: "Order not found" };
     }
 
-    // ✅ Server-side validation: phone match already enforced by query
+    // ✅ Normalize the order to a plain, serializable object
     const doc = snapshot.docs[0];
-    const order = {
-      id: doc.id,
-      ...doc.data(),
-      createdAt: serializeTimestamp(doc.data().createdAt),
-    } as Order;
+    const order = normalizeOrder(doc.id, doc.data());
 
-    console.log(`✅ [ACTION] Order found: ${orderNumber}`);
-    return { success: true, order } as { success: true; order: Order };
+    console.log(`✅ [ACTION] Order found: ${order.orderNumber}`);
+    return { success: true, order };
   } catch (error) {
     console.error("❌ [ACTION] Track order failed:", error);
     return { success: false, error: "Failed to track order" };
   }
 };
-
 // ============================================================================
 // 👔 ADMIN ACTIONS - Use adminDb (Bypass Rules)
 // ============================================================================

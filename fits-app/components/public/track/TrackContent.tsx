@@ -3,16 +3,24 @@
 
 import { useState } from 'react';
 import { trackOrderAction } from '@/actions/order-actions';
+import { Order } from '@/lib/types';
 import { TrackHeader } from './TrackHeader';
 import { TrackForm } from './TrackForm';
 import { TrackResult } from './TrackResult';
 import { TrackNotFound } from './TrackNotFound';
 import { Loader2 } from 'lucide-react';
 
+// ✅ Define explicit response type for tracking
+interface TrackResponse {
+    success: boolean;
+    order?: Order;
+    error?: string;
+}
+
 export function TrackContent() {
     const [orderNumber, setOrderNumber] = useState('');
     const [phone, setPhone] = useState('');
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<Order | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -31,13 +39,13 @@ export function TrackContent() {
         console.log('🔍 [TRACK] Looking up:', { orderNumber, phone });
 
         try {
-            const data = await trackOrderAction(orderNumber.trim(), phone.trim());
+            const data = await trackOrderAction(orderNumber.trim(), phone.trim()) as TrackResponse;
 
-            if (data.success && data.order) {
+            // ✅ Type guard: Check if 'order' property exists
+            if (data.success && 'order' in data && data.order) {
                 console.log('✅ [TRACK] Order found:', data.order.orderNumber);
                 setResult(data.order);
             } else {
-                console.warn('⚠️ [TRACK] Order not found:', data.error);
                 setError(data.error || 'Order not found. Please check your details and try again.');
             }
         } catch (err) {
@@ -62,7 +70,7 @@ export function TrackContent() {
 
             {/* Main Content */}
             <div className="container px-4 py-8 md:py-12">
-                <div className="max-w-2xl mx-auto">
+                <div className="max-w-3xl mx-auto">
 
                     {/* Show Form if no result yet */}
                     {!result && !loading && (

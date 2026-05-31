@@ -3,16 +3,16 @@
 
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Banknote, Smartphone, Copy } from 'lucide-react';
+import { Smartphone, Copy, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 interface PaymentMethodSelectorProps {
-    value: 'mpesa' | 'cod';
+    value: 'mpesa' | 'pay_later';
     mpesaCode?: string;
     grandTotal: number; // ✅ Actual cart total (subtotal + delivery)
-    onMethodChange: (value: 'mpesa' | 'cod') => void;
+    onMethodChange: (value: 'mpesa' | 'pay_later') => void;
     onCodeChange?: (code: string) => void;
     disabled?: boolean;
 }
@@ -38,7 +38,7 @@ export function PaymentMethodSelector({
     return (
         <RadioGroup
             value={value}
-            onValueChange={(val) => onMethodChange(val as 'mpesa' | 'cod')}
+            onValueChange={(val) => onMethodChange(val as 'mpesa' | 'pay_later')}
             className="space-y-4"
             disabled={disabled}
         >
@@ -109,30 +109,33 @@ export function PaymentMethodSelector({
                 </Label>
             </div>
 
-            {/* Cash on Delivery Option */}
-            <div className={`flex items-start gap-3 p-4 border rounded-lg transition-all ${value === 'cod'
-                ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                : 'border-slate-200 hover:border-blue-300'
+            {/* Pay Later Option */}
+            <div className={`flex items-start gap-3 p-4 border rounded-lg transition-all ${value === 'pay_later'
+                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                    : 'border-slate-200 hover:border-blue-300'
                 }`}>
-                <RadioGroupItem value="cod" id="cod" className="mt-1" disabled={disabled} />
-                <Label htmlFor="cod" className="flex-1 cursor-pointer flex-col md:flex-row">
+                <RadioGroupItem value="pay_later" id="pay_later" className="mt-1" disabled={disabled} />
+                <Label htmlFor="pay_later" className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2 font-medium text-slate-900">
-                        <Banknote className="h-4 w-4 text-blue-600" />
-                        Cash on Delivery
+                        <Clock className="h-4 w-4 text-blue-600" />
+                        Order Now, Pay Later
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                        Pay when your order arrives. No upfront payment required.
+                        Skip upfront payment. Place your order now & we’ll call to confirm details before delivery.
                     </p>
 
-                    {/* COD Info (shown when selected) */}
-                    {value === 'cod' && (
-                        <div className="mt-4 bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    {/* Pay Later Info (shown when selected) */}
+                    {value === 'pay_later' && (
+                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
                             <div className="flex items-start gap-2">
-                                <span className="text-orange-600 font-bold">ℹ</span>
-                                <p className="text-xs text-orange-800">
-                                    Please have exact change ready. Delivery available in Gaberone, Accra, and Khoja.
-                                </p>
+                                <span className="text-blue-600 font-bold">📞</span>
+                                <p className="text-xs text-blue-800 font-medium">How it works:</p>
                             </div>
+                            <ol className="text-xs text-slate-600 space-y-1 ml-6 list-decimal">
+                                <li>Place your order now – no payment needed upfront.</li>
+                                <li>Our team will call/WhatsApp to confirm items & delivery time.</li>
+                                <li>Pay securely via M-Pesa when your order arrives. Simple & safe!</li>
+                            </ol>
                         </div>
                     )}
                 </Label>
