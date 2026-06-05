@@ -48,7 +48,7 @@ export function PaymentMethodSelector({
                 : 'border-slate-200 hover:border-blue-300'
                 }`}>
                 <RadioGroupItem value="mpesa" id="mpesa" className="mt-1" disabled={disabled} />
-                <Label htmlFor="mpesa" className="flex-1 cursor-pointer">
+                <Label htmlFor="mpesa" className="flex-1 cursor-pointer flex-col md:flex-row items-start md:items-center gap-2">
                     <div className="flex flex-col md:flex-row items-center gap-2 font-medium text-slate-900">
                         <Smartphone className="h-4 w-4 text-green-600" />
                         M-Pesa
@@ -111,11 +111,11 @@ export function PaymentMethodSelector({
 
             {/* Pay Later Option */}
             <div className={`flex items-start gap-3 p-4 border rounded-lg transition-all ${value === 'pay_later'
-                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                    : 'border-slate-200 hover:border-blue-300'
+                ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                : 'border-slate-200 hover:border-blue-300'
                 }`}>
                 <RadioGroupItem value="pay_later" id="pay_later" className="mt-1" disabled={disabled} />
-                <Label htmlFor="pay_later" className="flex-1 cursor-pointer">
+                <Label htmlFor="pay_later" className="flex-1 cursor-pointer flex-col md:flex-row items-start md:items-center gap-2">
                     <div className="flex items-center gap-2 font-medium text-slate-900">
                         <Clock className="h-4 w-4 text-blue-600" />
                         Order Now, Pay Later
