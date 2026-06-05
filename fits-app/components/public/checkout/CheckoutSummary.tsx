@@ -136,17 +136,6 @@ export function CheckoutSummary({
                 </div>
             </div>
 
-            {/* Checkout CTA */}
-            <Link href="/checkout" className="block">
-                <Button
-                    className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700"
-                    size="lg"
-                    disabled={items.length === 0}
-                >
-                    Place Order
-                </Button>
-            </Link>
-
             {/* Continue Shopping */}
             <Link href="/shop">
                 <Button variant="outline" className="w-full">
