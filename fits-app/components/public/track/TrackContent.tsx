@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/public/track/TrackContent.tsx
 'use client';
 
@@ -41,12 +42,14 @@ export function TrackContent() {
         try {
             const data = await trackOrderAction(orderNumber.trim(), phone.trim()) as TrackResponse;
 
-            // ✅ Type guard: Check if 'order' property exists
+            // ✅ FIX: Use 'in' operator as a type guard
+            // This tells TS: "If 'order' exists in 'data', treat it as the success type"
             if (data.success && 'order' in data && data.order) {
                 console.log('✅ [TRACK] Order found:', data.order.orderNumber);
                 setResult(data.order);
             } else {
-                setError(data.error || 'Order not found. Please check your details and try again.');
+                // In this branch, TS knows 'order' does NOT exist, so it must be the error type
+                setError((data as { error?: string }).error || 'Order not found. Please check your details and try again.');
             }
         } catch (err) {
             console.error('❌ [TRACK] Unexpected error:', err);

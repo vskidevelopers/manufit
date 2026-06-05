@@ -13,7 +13,7 @@ const values = [
     {
         icon: Clock,
         title: 'Fast Turnaround',
-        description: 'Most orders ready within 3-5 business days. Rush orders available for urgent needs.',
+        description: 'Most orders ready within 6-8 hrs after order placement and confirmation. Rush orders available for urgent needs.',
         color: 'text-green-600 bg-green-100',
     },
     {

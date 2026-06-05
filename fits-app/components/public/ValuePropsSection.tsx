@@ -19,7 +19,7 @@ const valueProps = [
     {
         icon: Clock,
         title: 'Fast Turnaround',
-        description: 'Most orders ready within 3-5 business days.',
+        description: 'Most orders ready within 6-8 hrs after order placement.',
         color: 'text-purple-600 bg-purple-100',
     },
     {

@@ -28,7 +28,7 @@ export function AboutStory() {
                                 What started as a small printing operation in Nairobi has grown into Kenya&apos;s trusted partner for custom t-shirts, hoodies, kids wear, office décor, and branded merchandise.
                             </p>
                             <p>
-                                We serve individuals, businesses, schools, churches, and organizations across East Africa . Every order, whether 1 piece or 1,000, gets the same attention to detail and commitment to quality.
+                                We serve individuals, businesses, schools, churches, and organizations across East Africa . Every order,both small scale or bulk, gets the same attention to detail and commitment to quality.
                             </p>
                             <p>
                                 <strong className="text-slate-900">Our promise?</strong> Premium materials, crisp prints, fast turnaround, and delivery you can count on.

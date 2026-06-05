@@ -44,9 +44,9 @@ export default function ContactPage() {
                         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
                             <h2 className="text-lg font-semibold text-slate-900">Get in Touch</h2>
 
-                            <a href="tel:0706406009" className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors">
+                            <a href="tel:0799336502" className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors">
                                 <Phone className="h-5 w-5 text-blue-600" />
-                                0706 406 009
+                                0799 336 502
                             </a>
 
                             <a href="mailto:hello@i-Drip.co.ke" className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors">
@@ -57,8 +57,8 @@ export default function ContactPage() {
                             <div className="flex items-start gap-3 text-slate-600">
                                 <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
                                 <div>
-                                    <p>Gaberone, Nairobi</p>
-                                    <p className="text-sm text-slate-500">Also serving Accra & Khoja</p>
+                                    <p>Munyu rd, Nairobi</p>
+                                    <p className="text-sm text-slate-500">Serving Nairobi, and the entire Country</p>
                                 </div>
                             </div>
 

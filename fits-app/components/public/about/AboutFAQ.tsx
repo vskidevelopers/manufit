@@ -11,7 +11,7 @@ const faqs = [
     },
     {
         question: 'How long does delivery take?',
-        answer: 'Most orders are ready within 3-5 business days. Delivery time depends on your location – Nairobi same-day, up-country 2-4 days.',
+        answer: 'Most orders are ready within 6-8 hrs after order placement/confirmation. Delivery time depends on your location – Nairobi same-day, up-country 2-4 days.',
     },
     {
         question: 'Can I submit my own design?',

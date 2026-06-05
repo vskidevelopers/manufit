@@ -16,7 +16,7 @@ export function AboutCTA() {
                     </h2>
 
                     <p className="text-blue-100 text-sm md:text-base">
-                        Whether you need 1 custom t-shirt or 1,000 branded hoodies for your team; we are here to help.
+                        Whether you need small scale or bulk orders for your team; we are here to help.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
@@ -35,9 +35,9 @@ export function AboutCTA() {
 
                     {/* Contact Info */}
                     <div className="flex flex-wrap items-center justify-center gap-6 pt-6 text-sm text-blue-100">
-                        <a href="tel:0706406009" className="flex items-center gap-2 hover:text-white transition-colors">
+                        <a href="tel:0799336502" className="flex items-center gap-2 hover:text-white transition-colors">
                             <Phone className="h-4 w-4" />
-                            0706 406 009
+                            0799 336 502
                         </a>
                         <a href="mailto:hello@i-Drip.co.ke" className="flex items-center gap-2 hover:text-white transition-colors">
                             <Mail className="h-4 w-4" />

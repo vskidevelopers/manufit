@@ -47,7 +47,7 @@ export function TrackForm({
                     <Input
                         id="orderNumber"
                         type="text"
-                        placeholder="e.g., MF-260426-626"
+                        placeholder="e.g., IDRP-260426-626"
                         value={orderNumber}
                         onChange={(e) => onOrderNumberChange(e.target.value.toUpperCase())}
                         className="pl-10 font-mono tracking-wide uppercase"
@@ -68,7 +68,7 @@ export function TrackForm({
                     <Input
                         id="phone"
                         type="tel"
-                        placeholder="e.g., 0706406009"
+                        placeholder="e.g., 07*******9"
                         value={phone}
                         onChange={(e) => onPhoneChange(e.target.value)}
                         className="pl-10"

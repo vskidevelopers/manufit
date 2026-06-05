@@ -27,7 +27,7 @@ const structuredData = {
   name: 'i-DRiP Custom Apparel & Merchandise',
   description: 'Custom apparel and branded merchandise',
   url: 'https://i-DRiP.co.ke',
-  telephone: '+254706406009',
+  telephone: '+254799336502',
   address: {
     '@type': 'PostalAddress',
     addressCountry: 'KE',
