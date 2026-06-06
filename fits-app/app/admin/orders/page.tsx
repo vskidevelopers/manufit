@@ -31,7 +31,6 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
-import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
 import { Eye, Trash2, Search, RefreshCw, AlertCircle, Package } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -81,19 +80,20 @@ export default function OrdersListPage() {
     const filteredOrders = orders.filter((order) => {
         const matchesSearch =
             order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customerPhone?.includes(searchTerm);
+            order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.customer.phone.includes(searchTerm);
 
-        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+        // Filter by fulfillment status
+        const matchesStatus = statusFilter === 'all' || order.fulfillment.status === statusFilter;
 
         return matchesSearch && matchesStatus;
     });
 
-    // Format date
-    const formatDate = (timestamp: any): string => {
-        if (!timestamp) return 'N/A';
+    // Format date (Now handles ISO strings instead of Firebase Timestamps)
+    const formatDate = (dateStr: string): string => {
+        if (!dateStr) return 'N/A';
         try {
-            const date = timestamp.toDate?.() || new Date(timestamp);
+            const date = new Date(dateStr);
             return date.toLocaleDateString('en-KE', {
                 year: 'numeric',
                 month: 'short',
@@ -119,7 +119,7 @@ export default function OrdersListPage() {
         console.log('🗑️ [CLIENT] Confirming delete:', orderToDelete.orderNumber);
 
         try {
-            const result = await deleteOrderAction(orderToDelete.id!);
+            const result = await deleteOrderAction(orderToDelete.id);
 
             if (result.success) {
                 console.log('✅ [CLIENT] Order deleted:', orderToDelete.orderNumber);
@@ -207,6 +207,7 @@ export default function OrdersListPage() {
                         <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="dispatched">Dispatched</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
@@ -250,7 +251,7 @@ export default function OrdersListPage() {
                                         <TableRow className="bg-slate-50">
                                             <TableHead className="w-[140px]">Order #</TableHead>
                                             <TableHead>Customer</TableHead>
-                                            <TableHead className="hidden md:table-cell">Location</TableHead>
+                                            <TableHead className="hidden md:table-cell">Fulfillment</TableHead>
                                             <TableHead className="text-right">Total</TableHead>
                                             <TableHead className="hidden sm:table-cell">Payment</TableHead>
                                             <TableHead>Status</TableHead>
@@ -270,30 +271,56 @@ export default function OrdersListPage() {
 
                                                 {/* Customer */}
                                                 <TableCell>
-                                                    <div className="font-medium text-sm">{order.customerName}</div>
-                                                    <div className="text-xs text-gray-500">{order.customerPhone}</div>
+                                                    <div className="font-medium text-sm">{order.customer.name}</div>
+                                                    <div className="text-xs text-gray-500">{order.customer.phone}</div>
                                                 </TableCell>
 
-                                                {/* Location */}
+                                                {/* Fulfillment (Method + Location) */}
                                                 <TableCell className="hidden md:table-cell text-sm">
-                                                    {order.customerLocation}
+                                                    <div className="flex flex-col">
+                                                        <Badge variant={order.fulfillment.method === 'delivery' ? 'default' : 'secondary'} className="w-fit mb-1">
+                                                            {order.fulfillment.method === 'delivery' ? 'Delivery' : 'Pickup'}
+                                                        </Badge>
+                                                        {order.fulfillment.location && (
+                                                            <span className="text-xs text-gray-500 truncate max-w-[150px]" title={order.fulfillment.location}>
+                                                                {order.fulfillment.location}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
 
                                                 {/* Total */}
                                                 <TableCell className="text-right font-bold text-sm">
-                                                    {order.currency || 'KSh'} {order.totalAmount?.toLocaleString()}
+                                                    KSh {order.totals.grandTotal.toLocaleString()}
                                                 </TableCell>
 
-                                                {/* Payment Method */}
+                                                {/* Payment (Method + Status) */}
                                                 <TableCell className="hidden sm:table-cell">
-                                                    <Badge variant="outline" className="uppercase text-xs">
-                                                        {order.paymentMethod}
-                                                    </Badge>
+                                                    <div className="flex flex-col items-end">
+                                                        <Badge variant="outline" className="uppercase text-xs mb-1">
+                                                            {order.payment.method === 'pay_now' ? 'Pay Now' : 'Pay Later'}
+                                                        </Badge>
+                                                        <span className={`text-xs font-medium ${order.payment.status === 'paid' || order.payment.status === 'verified'
+                                                                ? 'text-green-600'
+                                                                : 'text-orange-600'
+                                                            }`}>
+                                                            {order.payment.status}
+                                                        </span>
+                                                    </div>
                                                 </TableCell>
 
-                                                {/* Status */}
+                                                {/* Fulfillment Status */}
                                                 <TableCell>
-                                                    <OrderStatusBadge status={order.status || 'pending'} showIcon={false} />
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={`capitalize ${order.fulfillment.status === 'completed' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                                                                order.fulfillment.status === 'cancelled' ? 'bg-red-100 text-red-800 hover:bg-red-100' :
+                                                                    order.fulfillment.status === 'processing' || order.fulfillment.status === 'dispatched' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' :
+                                                                        'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                                                            }`}
+                                                    >
+                                                        {order.fulfillment.status}
+                                                    </Badge>
                                                 </TableCell>
 
                                                 {/* Date */}
@@ -355,14 +382,13 @@ export default function OrdersListPage() {
                         <div className="py-4">
                             <div className="text-sm text-gray-500 space-y-1">
                                 <p>
-                                    <strong>Customer:</strong> {orderToDelete.customerName}
+                                    <strong>Customer:</strong> {orderToDelete.customer.name}
                                 </p>
                                 <p>
-                                    <strong>Total:</strong> {orderToDelete.currency || 'KSh'}{' '}
-                                    {orderToDelete.totalAmount?.toLocaleString()}
+                                    <strong>Total:</strong> KSh {orderToDelete.totals.grandTotal.toLocaleString()}
                                 </p>
                                 <p>
-                                    <strong>Status:</strong> {orderToDelete.status}
+                                    <strong>Fulfillment:</strong> {orderToDelete.fulfillment.status}
                                 </p>
                             </div>
                         </div>

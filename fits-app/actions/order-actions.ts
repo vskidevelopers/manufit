@@ -4,44 +4,16 @@
 
 // ✅ Import adminDb for admin operations (server-only)
 import { adminDb } from "@/lib/firebase-admin";
-import { Timestamp } from "firebase-admin/firestore";
-
-// ✅ Import client db for public operations (checkout, tracking)
 
 // ✅ Import revalidatePath for cache invalidation
 import { revalidatePath } from "next/cache";
 
-// ✅ Import types
-import { Order, OrderStatus } from "@/lib/types";
+// ✅ Import new types
+import { Order, FulfillmentStatus, PaymentStatus } from "@/lib/types";
 
-// ✅ Helper: Normalize Firestore order doc to plain, serializable Order object
-const normalizeOrder = (id: string, data: any): Order => ({
-  id,
-  orderNumber: data.orderNumber,
-  customerName: data.customerName,
-  customerPhone: data.customerPhone,
-  customerLocation: data.customerLocation,
-  deliveryRegion: data.deliveryRegion,
-  wantsDelivery: data.wantsDelivery,
-  paymentMethod: data.paymentMethod,
-  mpesaCode: data.mpesaCode,
-  items:
-    data.items?.map((item: any) => ({
-      productId: item.productId,
-      productName: item.productName,
-      quantity: item.quantity,
-      size: item.size,
-      color: item.color,
-      priceAtPurchase: item.priceAtPurchase,
-    })) || [],
-  totalAmount: data.totalAmount || 0,
-  currency: data.currency || "KSh",
-  deliveryFee: data.deliveryFee,
-  status: (data.status as OrderStatus) || "pending",
-  // ✅ Serialize ALL timestamp fields to ISO strings
-  createdAt: serializeTimestamp(data.createdAt),
-  updatedAt: serializeTimestamp(data.updatedAt),
-});
+// ============================================================================
+// 🔧 HELPERS
+// ============================================================================
 
 // ✅ Helper: Serialize Timestamp to ISO string (for client props)
 const serializeTimestamp = (ts: any): string | null => {
@@ -51,6 +23,51 @@ const serializeTimestamp = (ts: any): string | null => {
   if (ts instanceof Date) return ts.toISOString();
   return null;
 };
+
+// ✅ Helper: Normalize Firestore order doc to plain, serializable Order object (New Lean Schema)
+const normalizeOrder = (id: string, data: any): Order => ({
+  id,
+  orderNumber: data.orderNumber,
+  createdAt: serializeTimestamp(data.createdAt) || new Date().toISOString(),
+
+  customer: {
+    name: data.customer?.name || "Unknown",
+    phone: data.customer?.phone || "",
+    email: data.customer?.email || null,
+  },
+
+  items:
+    data.items?.map((item: any) => ({
+      productId: item.productId,
+      name: item.name || item.productName, 
+      quantity: item.quantity || 1,
+      size: item.size || null,
+      color: item.color || null,
+      price: item.price || item.priceAtPurchase || 0, 
+      image: item.image || null,
+    category: item.category || null,
+    })) || [],
+
+  totals: {
+    subtotal: data.totals?.subtotal || data.totalAmount || 0,
+    grandTotal: data.totals?.grandTotal || data.totalAmount || 0,
+  },
+
+  fulfillment: {
+    method: data.fulfillment?.method || "pickup",
+    location: data.fulfillment?.location || null,
+    status: (data.fulfillment?.status as FulfillmentStatus) || "pending",
+  },
+
+  payment: {
+    method: data.payment?.method || "pay_later",
+    tillNumber: data.payment?.tillNumber || null,
+    mpesaCode: data.payment?.mpesaCode || null,
+    status: (data.payment?.status as PaymentStatus) || "pending",
+  },
+
+  notes: data.notes || null,
+});
 
 // --- HELPER: Generate Order Number ---
 function generateOrderNumber(): string {
@@ -63,64 +80,77 @@ function generateOrderNumber(): string {
 }
 
 // ============================================================================
-// 🛒 PUBLIC ACTIONS (Anonymous Checkout) - Use Client DB + Rules
+// 🛒 PUBLIC ACTIONS (Anonymous Checkout)
 // ============================================================================
+
 // --- CREATE ORDER (Public Checkout) ---
 export async function createOrderAction(orderData: {
   customerName: string;
   customerPhone: string;
-  customerLocation: string;
-  deliveryRegion?: "nairobi" | "others";
-  wantsDelivery?: boolean;
-  paymentMethod: "mpesa" | "pay_later";
-  mpesaCode?: string;
+  customerEmail?: string | null;
+  fulfillmentMethod: "pickup" | "delivery";
+  location?: string | null;
+  paymentMethod: "pay_now" | "pay_later";
+  mpesaCode?: string | null;
   items: Array<{
     productId: string;
-    productName: string;
+    name: string;
     quantity: number;
-    size?: string;
-    color?: string;
-    priceAtPurchase: number;
+    size?: string | null;
+    color?: string | null;
+    price: number;
   }>;
   totalAmount: number;
-  currency?: string;
-  deliveryFee?: number;
 }) {
-  console.log("👔 [ACTION] Create Order Workflow Started");
+  console.log("👔 [ACTION] Create Order Workflow Started (Lean Schema)");
 
   try {
     const orderNumber = generateOrderNumber();
     console.log("🔢 [ACTION] Generated:", orderNumber);
 
-    // ✅ Use adminDb for reliable server-side write
     const ordersRef = adminDb.collection("orders");
 
+    // Build the lean payload matching our new types.ts
     const payload = {
       orderNumber,
-      customerName: orderData.customerName.trim(),
-      customerPhone: orderData.customerPhone.trim(),
-      customerLocation: orderData.customerLocation,
-      deliveryRegion: orderData.deliveryRegion || null,
-      wantsDelivery: orderData.wantsDelivery || false,
-      paymentMethod: orderData.paymentMethod,
-      mpesaCode:
-        orderData.paymentMethod === "mpesa"
-          ? orderData.mpesaCode?.trim()
-          : null,
+      createdAt: new Date().toISOString(),
+
+      customer: {
+        name: orderData.customerName.trim(),
+        phone: orderData.customerPhone.trim(),
+        email: orderData.customerEmail || null,
+      },
+
       items: orderData.items,
-      totalAmount: orderData.totalAmount,
-      currency: orderData.currency || "KSh",
-      deliveryFee: orderData.deliveryFee || null,
-      status: "pending",
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+
+      totals: {
+        subtotal: orderData.totalAmount,
+        grandTotal: orderData.totalAmount, // Zero delivery fee logic
+      },
+
+      fulfillment: {
+        method: orderData.fulfillmentMethod,
+        location:
+          orderData.fulfillmentMethod === "delivery"
+            ? orderData.location
+            : null,
+        status: "pending",
+      },
+
+      payment: {
+        method: orderData.paymentMethod,
+        // Only add tillNumber and mpesaCode if they chose Pay Now
+        ...(orderData.paymentMethod === "pay_now" && {
+          tillNumber: "1111111", // Your hardcoded Till Number
+          mpesaCode: orderData.mpesaCode,
+        }),
+        status: "pending",
+      },
     };
 
     const docRef = await ordersRef.add(payload);
-
     console.log("✅ [ACTION] Order created:", docRef.id);
 
-    // Revalidate admin paths for real-time dashboard updates
     revalidatePath("/admin/orders");
 
     return {
@@ -146,7 +176,7 @@ export const trackOrderAction = async (orderNumber: string, phone: string) => {
     const ordersRef = adminDb.collection("orders");
     const query = ordersRef
       .where("orderNumber", "==", orderNumber)
-      .where("customerPhone", "==", phone);
+      .where("customer.phone", "==", phone); // Updated path for nested schema
 
     const snapshot = await query.get();
 
@@ -166,6 +196,7 @@ export const trackOrderAction = async (orderNumber: string, phone: string) => {
     return { success: false, error: "Failed to track order" };
   }
 };
+
 // ============================================================================
 // 👔 ADMIN ACTIONS - Use adminDb (Bypass Rules)
 // ============================================================================
@@ -175,22 +206,12 @@ export async function getOrdersAction(): Promise<Order[]> {
   console.log("👔 [ACTION] Fetch All Orders (Admin)");
 
   try {
-    // ✅ Use adminDb to bypass rules
     const ordersRef = adminDb.collection("orders");
     const snapshot = await ordersRef.orderBy("createdAt", "desc").get();
 
-    const orders = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        currency: data.currency || "KSh",
-        status: data.status || "pending",
-        items: data.items || [],
-        createdAt: serializeTimestamp(data.createdAt),
-        updatedAt: serializeTimestamp(data.updatedAt),
-      } as Order;
-    });
+    const orders = snapshot.docs.map((doc) =>
+      normalizeOrder(doc.id, doc.data()),
+    );
 
     console.log(`✅ [ACTION] Fetched ${orders.length} orders`);
     return orders;
@@ -205,7 +226,6 @@ export async function getOrderAction(id: string): Promise<Order | null> {
   console.log(`👔 [ACTION] Fetch Order ${id} (Admin)`);
 
   try {
-    // ✅ Use adminDb to bypass rules
     const orderRef = adminDb.collection("orders").doc(id);
     const doc = await orderRef.get();
 
@@ -214,17 +234,7 @@ export async function getOrderAction(id: string): Promise<Order | null> {
       return null;
     }
 
-    const data = doc.data();
-    const order = {
-      id: doc.id,
-      ...data,
-      currency: data?.currency || "KSh",
-      status: data?.status || "pending",
-      items: data?.items || [],
-      createdAt: serializeTimestamp(data?.createdAt),
-      updatedAt: serializeTimestamp(data?.updatedAt),
-    } as Order;
-
+    const order = normalizeOrder(doc.id, doc.data());
     console.log(`✅ [ACTION] Order fetched: ${id}`);
     return order;
   } catch (error) {
@@ -233,49 +243,68 @@ export async function getOrderAction(id: string): Promise<Order | null> {
   }
 }
 
-// --- UPDATE STATUS (Admin) ---
-export const updateOrderStatusAction = async (
+// --- UPDATE FULFILLMENT STATUS (Admin) ---
+export const updateFulfillmentStatusAction = async (
   id: string,
-  status: OrderStatus,
-  notes?: string,
+  status: FulfillmentStatus,
 ) => {
-  console.log(`👔 [ACTION] Update ${id} → ${status}`);
+  console.log(`👔 [ACTION] Update Fulfillment ${id} → ${status}`);
 
-  // Validation
-  const valid: OrderStatus[] = [
+  const valid: FulfillmentStatus[] = [
     "pending",
     "processing",
+    "dispatched",
     "completed",
     "cancelled",
   ];
   if (!valid.includes(status)) {
-    return { success: false, error: "Invalid status" };
+    return { success: false, error: "Invalid fulfillment status" };
   }
 
   try {
-    // ✅ Use adminDb to bypass rules
     const orderRef = adminDb.collection("orders").doc(id);
-
-    const updateData: any = {
-      status,
+    await orderRef.update({
+      "fulfillment.status": status,
       updatedAt: new Date().toISOString(),
-    };
+    });
 
-    if (notes) {
-      updateData.notes = notes;
-    }
-
-    await orderRef.update(updateData);
-
-    console.log(`✅ [ACTION] Order ${id} updated to ${status}`);
-
-    // Revalidate admin paths
+    console.log(`✅ [ACTION] Order ${id} fulfillment updated to ${status}`);
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${id}`);
 
     return { success: true };
   } catch (error) {
-    console.error(`❌ [ACTION] Failed to update order ${id}:`, error);
+    console.error(`❌ [ACTION] Failed to update fulfillment ${id}:`, error);
+    return { success: false, error: "Update failed" };
+  }
+};
+
+// --- UPDATE PAYMENT STATUS (Admin) ---
+export const updatePaymentStatusAction = async (
+  id: string,
+  status: PaymentStatus,
+) => {
+  console.log(`👔 [ACTION] Update Payment ${id} → ${status}`);
+
+  const valid: PaymentStatus[] = ["pending", "paid", "verified"];
+  if (!valid.includes(status)) {
+    return { success: false, error: "Invalid payment status" };
+  }
+
+  try {
+    const orderRef = adminDb.collection("orders").doc(id);
+    await orderRef.update({
+      "payment.status": status,
+      updatedAt: new Date().toISOString(),
+    });
+
+    console.log(`✅ [ACTION] Order ${id} payment updated to ${status}`);
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${id}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error(`❌ [ACTION] Failed to update payment ${id}:`, error);
     return { success: false, error: "Update failed" };
   }
 };
@@ -285,14 +314,9 @@ export async function deleteOrderAction(id: string) {
   console.log(`🗑️ [ACTION] Delete Order ${id} (Admin)`);
 
   try {
-    // ✅ Use adminDb to bypass rules
     await adminDb.collection("orders").doc(id).delete();
-
     console.log(`✅ [ACTION] Order ${id} deleted`);
-
-    // Revalidate admin paths
     revalidatePath("/admin/orders");
-
     return { success: true };
   } catch (error) {
     console.error(`❌ [ACTION] Failed to delete order ${id}:`, error);
@@ -305,7 +329,6 @@ export const getCustomersAction = async () => {
   console.log("👔 [ACTION] Fetch customers (Admin)");
 
   try {
-    // ✅ Use adminDb to bypass rules
     const ordersRef = adminDb.collection("orders");
     const snapshot = await ordersRef.get();
 
@@ -325,35 +348,37 @@ export const getCustomersAction = async () => {
 
     snapshot.docs.forEach((doc) => {
       const order = doc.data();
-      const phone = order.customerPhone;
+      const phone = order.customer?.phone;
       if (!phone) return;
 
       const existing = customerMap.get(phone);
-      const orderDate = order.createdAt
-        ? order.createdAt.toDate?.()?.toISOString() || order.createdAt
-        : null;
+      const orderDate = serializeTimestamp(order.createdAt);
 
       if (existing) {
         existing.totalOrders += 1;
-        existing.totalSpent += order.totalAmount || 0;
-        existing.locations.add(order.customerLocation);
+        existing.totalSpent += order.totals?.grandTotal || 0;
+        if (order.fulfillment?.location) {
+          existing.locations.add(order.fulfillment.location);
+        }
         existing.orderIds.push(doc.id);
 
         // Keep most recent name
-        if (order.customerName && orderDate) {
+        if (order.customer?.name && orderDate) {
           if (!existing.lastOrderDate || orderDate > existing.lastOrderDate) {
-            existing.name = order.customerName;
+            existing.name = order.customer.name;
             existing.lastOrderDate = orderDate;
           }
         }
       } else {
         customerMap.set(phone, {
           phone,
-          name: order.customerName || "Unknown",
+          name: order.customer?.name || "Unknown",
           totalOrders: 1,
-          totalSpent: order.totalAmount || 0,
+          totalSpent: order.totals?.grandTotal || 0,
           lastOrderDate: orderDate,
-          locations: new Set([order.customerLocation]),
+          locations: new Set(
+            order.fulfillment?.location ? [order.fulfillment.location] : [],
+          ),
           orderIds: [doc.id],
         });
       }
@@ -363,7 +388,6 @@ export const getCustomersAction = async () => {
     const customers = Array.from(customerMap.values()).map((c) => ({
       ...c,
       locations: Array.from(c.locations),
-      lastOrderDate: c.lastOrderDate, // Already ISO string
     }));
 
     console.log(`✅ [ACTION] Aggregated ${customers.length} unique customers`);

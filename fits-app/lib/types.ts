@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // lib/types.ts
-import { Timestamp } from "firebase/firestore";
+
+// ==========================================
+// 🛍️ PRODUCT TYPES
+// ==========================================
 
 export interface Product {
   id?: string; // Firestore ID
@@ -12,67 +15,96 @@ export interface Product {
   availableSizes?: string[]; // e.g., ['S', 'M', 'L', 'XL']
   availableColors?: string[]; // e.g., ['Red', 'Blue', 'Black']
   isActive?: boolean;
-  createdAt?: any; // Firestore Timestamp
-}
+  createdAt?: any; // Serialized to ISO string
+  updatedAt?: any;
 
-// ==========================================
-// 📦 ORDER TYPES
-// ==========================================
-
-export type OrderStatus = "pending" | "processing" | "completed" | "cancelled";
-
-export type PaymentMethod = "mpesa" | "pay_later"; // Cash on Delivery
-
-export interface OrderItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  priceAtPurchase: number;
-  size?: string;
-  color?: string;
-
-  // Future-proof: allow additional item metadata
+  // Future-proof: allow additional fields
   [key: string]: any;
 }
 
-export interface OrderNote {
-  text: string;
-  timestamp: Timestamp | any;
-  admin?: string; // Email of admin who added the note
+// ==========================================
+// 📦 NEW LEAN ORDER TYPES
+// ==========================================
+
+// 1. Enums for the Dual-Status Architecture
+export type FulfillmentMethod = "pickup" | "delivery";
+export type PaymentMethod = "pay_now" | "pay_later";
+
+export type FulfillmentStatus =
+  | "pending"
+  | "processing"
+  | "dispatched"
+  | "completed"
+  | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "verified";
+
+// 2. Lean Order Item
+// lib/types.ts
+export interface OrderItem {
+  productId: string;
+  name: string;
+  image?: string | null;
+  category?: string | null;
+  size?: string | null;
+  color?: string | null;
+  quantity: number;
+  price: number;
 }
 
+// 3. The New Lean Order Interface
 export interface Order {
-  id?: string; // Firestore document ID
-  // Required core fields (should always exist for a valid order)
-  orderNumber?: string; // e.g., MF-240413-001
-  customerName?: string;
-  customerPhone?: string;
-  customerLocation?: string; // Gaberone, Accra, Khoja
-  items?: OrderItem[];
-  totalAmount?: number;
-  paymentMethod?: PaymentMethod;
-  status?: OrderStatus;
+  id: string; // Firestore document ID
+  orderNumber: string; // e.g., IDRP-260607-001
+  createdAt: string; // ISO string
 
-  // Optional but common fields
-  currency?: string; // Default to 'KSh' if missing
-  notes?: OrderNote[]; // Admin notes array
-  adminNotes?: string; // Simple string note (legacy support)
+  // Grouped Customer Data
+  customer: {
+    name: string;
+    phone: string;
+    email?: string | null;
+  };
 
-  // Metadata (optional, server-managed)
-  createdAt?: Timestamp | any;
-  updatedAt?: Timestamp | any;
-  mpesaCode?: string;
+  // Items Array
+  items: OrderItem[];
+
+  // Lean Totals (No delivery fee math)
+  totals: {
+    subtotal: number;
+    grandTotal: number; // Always equals subtotal in this flow
+  };
+
+  // Fulfillment Block
+  fulfillment: {
+    method: FulfillmentMethod;
+    location?: string | null; // Null if method is 'pickup'
+    status: FulfillmentStatus;
+  };
+
+  // Payment Block
+  payment: {
+    method: PaymentMethod;
+    tillNumber?: string | null; // Null if method is 'pay_later'
+    mpesaCode?: string | null; // Null if method is 'pay_later'
+    status: PaymentStatus;
+  };
+
+  // Optional Admin Notes
+  notes?: string | null;
 
   // Future-proof: allow additional fields without breaking types
   [key: string]: any;
 }
+
+// ==========================================
+// 👥 CUSTOMER TYPES (Aggregated from Orders)
+// ==========================================
 
 export interface Customer {
   phone: string;
   name: string;
   totalOrders: number;
   totalSpent: number;
-  lastOrderDate: Timestamp | any;
+  lastOrderDate: string | null; // ISO string
   locations: string[];
   orderIds: string[];
   [key: string]: any;
