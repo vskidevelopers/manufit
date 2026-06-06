@@ -70,14 +70,6 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                                 />
                             ) : null}
 
-                            {/* Color Selector */}
-                            {product.availableColors?.length ? (
-                                <ColorSelector
-                                    colors={product.availableColors}
-                                    selectedColor={selectedColor}
-                                    onColorChange={setSelectedColor}
-                                />
-                            ) : null}
 
                             {/* Add to Cart - Receives state as props */}
                             <AddToCartButton
